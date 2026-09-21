@@ -1,0 +1,357 @@
+/* BrewView — рисованный «ролик» приготовления, вид сверху.
+   Геометрия и тайминги — по design/preview.html (.brew, artOf).
+   Длительность цикла задаётся инлайн-переменной --dur (секунды).
+   Цвета — только токены (чашка — молочные, кофе — кофейные, рисунок — сиропные). */
+
+.brew {
+  overflow: visible;
+  display: block;
+}
+
+.brew .spin {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: brew-spin 16s linear infinite;
+}
+
+@keyframes brew-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.brew .rip {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: brew-ripple var(--dur, 9s) ease-out infinite;
+}
+
+@keyframes brew-ripple {
+  0%,
+  3% {
+    transform: scale(0.15);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.7;
+  }
+  15% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  16%,
+  18% {
+    transform: scale(0.15);
+    opacity: 0;
+  }
+  21% {
+    opacity: 0.7;
+  }
+  29% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.brew .stream {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: brew-stream var(--dur, 9s) ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes brew-stream {
+  0%,
+  28% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  58% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  63% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+}
+
+.brew .pool {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: brew-pool var(--dur, 9s) var(--ease-out) infinite;
+  opacity: 0;
+}
+
+@keyframes brew-pool {
+  0%,
+  30% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  34% {
+    opacity: 1;
+  }
+  64% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  92% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.brew .pop {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: brew-pop var(--dur, 9s) var(--ease-spring) infinite;
+  opacity: 0;
+}
+
+@keyframes brew-pop {
+  0%,
+  58% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  66% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  92% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.brew .p2 {
+  animation-delay: 0.18s;
+}
+
+.brew .p3 {
+  animation-delay: 0.36s;
+}
+
+/* Пауза: ролик не убран с экрана, а остановлен (для невидимых — через useVisible). */
+.brew-paused *,
+.brew-paused,
+.brew-hold *,
+.brew-hold {
+  animation-play-state: paused !important;
+}
+
+/* Полоса прогресса ролика (LiveCard, DrinkPlayer). */
+.brew-progress {
+  transform-origin: left;
+  animation: brew-progress var(--dur, 9s) linear infinite;
+}
+
+@keyframes brew-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Чипы шагов DrinkPlayer: подсветка по ходу ролика. */
+.step-live-1 {
+  animation: brew-hl1 var(--dur, 9s) infinite;
+}
+
+.step-live-2 {
+  animation: brew-hl2 var(--dur, 9s) infinite;
+}
+
+.step-live-3 {
+  animation: brew-hl3 var(--dur, 9s) infinite;
+}
+
+@keyframes brew-hl1 {
+  0%,
+  28% {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+  }
+  32%,
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes brew-hl2 {
+  0%,
+  28% {
+    background: transparent;
+  }
+  32%,
+  62% {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+  }
+  66%,
+  100% {
+    background: transparent;
+  }
+}
+
+@keyframes brew-hl3 {
+  0%,
+  62% {
+    background: transparent;
+  }
+  66%,
+  94% {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-color: var(--primary);
+  }
+  98%,
+  100% {
+    background: transparent;
+  }
+}
+
+/* Бонусное кольцо: заполнение при показе. */
+.bonus-ring-fill {
+  stroke-dasharray: 452;
+  stroke-dashoffset: 452;
+}
+
+.bonus-ring-go .bonus-ring-fill {
+  animation: bonus-ring-fill var(--dur-ring) var(--ease-out) forwards;
+}
+
+@keyframes bonus-ring-fill {
+  to {
+    stroke-dashoffset: var(--ring-target, 145);
+  }
+}
+
+/* Стакан Glass: кубики льда и зёрна дрейфуют (только hero/старт). */
+.glass-anim .ice {
+  animation: glass-bob 6s ease-in-out infinite alternate;
+}
+
+.glass-anim .i2 {
+  animation-duration: 7.5s;
+  animation-delay: -2s;
+}
+
+.glass-anim .i3 {
+  animation-duration: 5.2s;
+  animation-delay: -3s;
+}
+
+.glass-anim .i4 {
+  animation-duration: 8.4s;
+  animation-delay: -1s;
+}
+
+@keyframes glass-bob {
+  from {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+  to {
+    transform: translateY(6px) rotate(3deg);
+  }
+}
+
+.glass-anim .fl {
+  animation: glass-fl 7s ease-in-out infinite alternate;
+}
+
+.glass-anim .f2 {
+  animation-duration: 9s;
+  animation-delay: -3s;
+}
+
+.glass-anim .f3 {
+  animation-duration: 6s;
+  animation-delay: -1s;
+}
+
+.glass-anim .f4 {
+  animation-duration: 8s;
+  animation-delay: -5s;
+}
+
+.glass-anim .f5 {
+  animation-duration: 10s;
+  animation-delay: -2s;
+}
+
+@keyframes glass-fl {
+  from {
+    transform: translateY(-10px) rotate(-6deg);
+  }
+  to {
+    transform: translateY(12px) rotate(8deg);
+  }
+}
+
+/* Splash: брызги молока из логотипа — один раз. */
+.splash-drop {
+  border-radius: 50%;
+  background: var(--liquid-milk);
+  opacity: 0;
+  animation: splash-drop var(--dur-3) var(--ease-out) 1s 1 forwards;
+}
+
+@keyframes splash-drop {
+  0% {
+    transform: translate(0, 0) scale(0.2);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brew .pop,
+  .brew .pool {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .brew .stream {
+    display: none;
+  }
+  .bonus-ring-fill {
+    stroke-dashoffset: var(--ring-target, 145);
+  }
+}

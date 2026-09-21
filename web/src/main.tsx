@@ -2,6 +2,8 @@ import "@fontsource/onest/400.css";
 import "@fontsource/onest/500.css";
 import "@fontsource/onest/600.css";
 import "@fontsource/onest/700.css";
+import "@fontsource/caveat/500.css";
+import "@fontsource/caveat/600.css";
 import "./shared/styles/tokens.css";
 import "./shared/styles/app.css";
 import React from "react";

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./brew.css";
 
 @theme inline {
   --color-bg: var(--bg);
@@ -15,13 +16,19 @@
   --color-accent: var(--accent);
   --color-accent-text: var(--accent-text);
   --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
   --color-panel-text: var(--panel-text);
+  --color-panel-text-2: var(--panel-text-2);
   --color-success: var(--success);
   --color-danger: var(--danger);
+  --color-line: var(--line);
   --radius-control: var(--r-control);
   --radius-card: var(--r-card);
   --radius-panel: var(--r-panel);
   --radius-tile: var(--r-tile);
+  --radius-sheet: var(--r-sheet);
+  --font-sans: var(--font-sans);
+  --font-script: var(--font-script);
 }
 
 /* Запасная светлая тема для проверки data-theme (MVP тёмный). */
