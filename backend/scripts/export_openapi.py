@@ -15,9 +15,7 @@ def main() -> None:
     app = create_app()
     schema = app.openapi()
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(
-        json.dumps(schema, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    out.write_text(json.dumps(schema, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"wrote {out}")
 
 

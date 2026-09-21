@@ -1,0 +1,312 @@
+# Seed демо-данных. ЦЕНЫ ДЕМО — заменить реальными перед показом клиенту.
+# Деньги — int в копейках (32000 = 320 ₽). Никогда float.
+# Структура: locations, categories, option_groups, products, availability.
+# Идемпотентно: повторный `make seed` обновляет по slug/code, а не дублирует.
+
+locations:
+  - code: TV
+    name: Тверская
+    address: Москва, ул. Тверская, 1
+    timezone: Europe/Moscow
+    opening_hours:
+      mon: [["08:00", "22:00"]]
+      tue: [["08:00", "22:00"]]
+      wed: [["08:00", "22:00"]]
+      thu: [["08:00", "22:00"]]
+      fri: [["08:00", "23:00"]]
+      sat: [["09:00", "23:00"]]
+      sun: [["09:00", "21:00"]]
+    lead_time_min: 10
+    slot_step_min: 15
+    slot_capacity: 6
+    staff_pin: "1234" # только dev; в проде задать через env
+    is_active: true
+
+  - code: PT
+    name: Патрики
+    address: Москва, Патриаршие пруды, 5
+    timezone: Europe/Moscow
+    opening_hours:
+      mon: [["09:00", "21:00"]]
+      tue: [["09:00", "21:00"]]
+      wed: [["09:00", "21:00"]]
+      thu: [["09:00", "21:00"]]
+      fri: [["09:00", "22:00"]]
+      sat: [["10:00", "22:00"]]
+      sun: [] # закрыто по воскресеньям — для демо is_open_now
+    lead_time_min: 15
+    slot_step_min: 15
+    slot_capacity: 4
+    staff_pin: "4321" # только dev
+    is_active: true
+
+categories:
+  - slug: classic
+    name: Классика
+    sort: 1
+  - slug: signature
+    name: Авторские
+    sort: 2
+  - slug: cold
+    name: Холодные
+    sort: 3
+  - slug: decaf
+    name: Без кофеина
+    sort: 4
+
+option_groups:
+  - key: size
+    name: Размер
+    min_select: 1
+    max_select: 1
+    options:
+      - name: S · 200 мл
+        price_delta: -3000 # −30 ₽, демо
+        sort: 1
+      - name: M · 300 мл
+        price_delta: 0
+        sort: 2
+      - name: L · 400 мл
+        price_delta: 6000 # +60 ₽, демо
+        sort: 3
+
+  - key: milk
+    name: Молоко
+    min_select: 0
+    max_select: 1
+    options:
+      - name: Коровье
+        price_delta: 0
+        sort: 1
+        visual: { liquid: cow }
+      - name: Безлактозное
+        price_delta: 5000 # +50 ₽, демо
+        sort: 2
+        visual: { liquid: lactose_free }
+      - name: Овсяное
+        price_delta: 5000
+        sort: 3
+        visual: { liquid: oat }
+      - name: Миндальное
+        price_delta: 5000
+        sort: 4
+        visual: { liquid: almond }
+      - name: Кокосовое
+        price_delta: 5000
+        sort: 5
+        visual: { liquid: coconut }
+
+  - key: syrup
+    name: Сироп
+    min_select: 0
+    max_select: 2
+    options:
+      - name: Ваниль
+        price_delta: 4000 # +40 ₽, демо
+        sort: 1
+        visual: { syrup: vanilla }
+      - name: Карамель
+        price_delta: 4000
+        sort: 2
+        visual: { syrup: caramel }
+      - name: Лесной орех
+        price_delta: 4000
+        sort: 3
+        visual: { syrup: hazelnut }
+      - name: Солёная карамель
+        price_delta: 4000
+        sort: 4
+        visual: { syrup: salted_caramel }
+
+  - key: shot
+    name: Доп. шот
+    min_select: 0
+    max_select: 1
+    options:
+      - name: "+1 шот"
+        price_delta: 6000 # +60 ₽, демо
+        sort: 1
+      - name: "+2 шота"
+        price_delta: 11000 # +110 ₽, демо
+        sort: 2
+
+  - key: temperature
+    name: Температура
+    min_select: 0
+    max_select: 1
+    options:
+      - name: Горячий
+        price_delta: 0
+        sort: 1
+      - name: Ледяной
+        price_delta: 0
+        sort: 2
+
+products:
+  - slug: espresso
+    category: classic
+    name: Эспрессо
+    description: Плотный и яркий, с золотистой крема.
+    base_price: 22000 # 220 ₽, демо
+    prep_units: 1
+    video_duration_sec: 9
+    video_steps:
+      - { title: Эспрессо, at_sec: 0 }
+      - { title: Крема, at_sec: 4 }
+      - { title: Подача, at_sec: 7 }
+    groups:
+      - { key: size }
+      - { key: shot }
+
+  - slug: americano
+    category: classic
+    name: Американо
+    description: Мягкий чёрный кофе на каждый день.
+    base_price: 25000 # демо
+    prep_units: 1
+    groups:
+      - { key: size }
+      - { key: shot }
+      - { key: temperature }
+
+  - slug: cappuccino
+    category: classic
+    name: Капучино
+    description: Классика с воздушной пеной и рисунком.
+    base_price: 32000 # демо
+    prep_units: 1
+    video_duration_sec: 11
+    video_steps:
+      - { title: Эспрессо, at_sec: 0 }
+      - { title: Молоко, at_sec: 4 }
+      - { title: Рисунок, at_sec: 8 }
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+      - { key: shot }
+
+  - slug: latte
+    category: classic
+    name: Латте
+    description: Нежный молочный, самый спокойный из всех.
+    base_price: 34000 # демо
+    prep_units: 1
+    video_duration_sec: 12
+    video_steps:
+      - { title: Эспрессо, at_sec: 0 }
+      - { title: Молоко, at_sec: 4 }
+      - { title: Рисунок, at_sec: 9 }
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+      - { key: shot }
+
+  - slug: flat-white
+    category: classic
+    name: Флэт уайт
+    description: Двойной эспрессо с тонким слоем молока.
+    base_price: 36000 # демо
+    prep_units: 1
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: shot }
+
+  - slug: raf
+    category: signature
+    name: Раф
+    description: Сливочный, сладковатый, с ванилью.
+    base_price: 39000 # демо
+    prep_units: 1
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+      - { key: shot }
+
+  - slug: mocha
+    category: signature
+    name: Мокко
+    description: Кофе с шоколадом и молоком.
+    base_price: 39000 # демо
+    prep_units: 1
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+      - { key: shot }
+
+  - slug: cold-brew
+    category: cold
+    name: Колд брю
+    description: Холодное заваривание, 18 часов. Бодрит мягко.
+    base_price: 34000 # демо
+    prep_units: 1
+    video_duration_sec: 10
+    video_steps:
+      - { title: Колд брю, at_sec: 0 }
+      - { title: Лёд, at_sec: 4 }
+      - { title: Подача, at_sec: 8 }
+    tags: [vegan]
+    groups:
+      - { key: size }
+      - { key: syrup }
+      - { key: temperature }
+
+  - slug: ice-latte
+    category: cold
+    name: Айс латте
+    description: Молочный со льдом — лето в стакане.
+    base_price: 36000 # демо
+    prep_units: 1
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+      - { key: shot }
+
+  - slug: cocoa
+    category: decaf
+    name: Какао
+    description: Густое, шоколадное, без кофеина.
+    base_price: 32000 # демо
+    prep_units: 1
+    tags: [no_caffeine]
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+
+  - slug: matcha-latte
+    category: decaf
+    name: Матча-латте
+    description: Взбитая матча с молоком на выбор.
+    base_price: 38000 # демо
+    prep_units: 1
+    tags: [no_caffeine]
+    groups:
+      - { key: size }
+      - { key: milk, min_select: 1 }
+      - { key: syrup }
+
+  - slug: tea
+    category: decaf
+    name: Чай
+    description: Гречишный или ягодный — спросите у баристы.
+    base_price: 25000 # демо
+    prep_units: 1
+    tags: [no_caffeine, vegan]
+    groups:
+      - { key: size }
+      - { key: temperature }
+
+# Стоп-лист различается по точкам (для демо и тестов).
+availability:
+  - location: TV
+    unavailable_products: [cold-brew]
+    unavailable_options: ["Кокосовое"]
+  - location: PT
+    unavailable_products: []
+    unavailable_options: ["Лесной орех"]

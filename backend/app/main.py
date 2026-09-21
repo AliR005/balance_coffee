@@ -45,6 +45,9 @@ def create_app() -> FastAPI:
 
     register_error_handlers(app)
     app.include_router(health_router)
+    from app.modules.menu.router import router as menu_router
+
+    app.include_router(menu_router)
 
     @app.get("/db-check")
     async def _db_check() -> dict[str, str]:

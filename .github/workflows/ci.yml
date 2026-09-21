@@ -7,17 +7,35 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: balance
+          POSTGRES_PASSWORD: balance
+          POSTGRES_DB: balance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.12"
       - working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://balance:balance@localhost:5432/balance
         run: |
           uv sync --group dev
           uv run ruff check .
           uv run ruff format --check .
           uv run mypy app
+          uv run alembic upgrade head
+          uv run python scripts/seed.py
           uv run pytest
 
   web:

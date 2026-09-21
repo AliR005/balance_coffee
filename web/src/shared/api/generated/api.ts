@@ -4,6 +4,120 @@
  * Balance API
  * OpenAPI spec version: 0.1.0
  */
+export interface CategoryOut {
+  id: number;
+  slug: string;
+  name: string;
+  products?: ProductOut[];
+}
+
+export interface GroupOut {
+  id: number;
+  key: string;
+  name: string;
+  min_select: number;
+  max_select: number;
+  required: boolean;
+  default_option_ids?: number[];
+  options?: OptionOut[];
+}
+
+export interface HTTPValidationError {
+  detail?: ValidationError[];
+}
+
+export interface LocationOut {
+  id: number;
+  code: string;
+  name: string;
+  address?: string;
+  timezone: string;
+  is_open_now: boolean;
+}
+
+export interface MenuOut {
+  location_id: number;
+  categories?: CategoryOut[];
+}
+
+export type OptionOutVisualAnyOf = { [key: string]: unknown };
+
+export type OptionOutVisual = OptionOutVisualAnyOf | null;
+
+export interface OptionOut {
+  id: number;
+  name: string;
+  price_delta: number;
+  visual?: OptionOutVisual;
+  available?: boolean;
+}
+
+export type ProductOutVideoDurationSec = number | null;
+
+export type ProductOutVideoStepsAnyOfItem = { [key: string]: unknown };
+
+export type ProductOutVideoSteps = ProductOutVideoStepsAnyOfItem[] | null;
+
+export interface ProductOut {
+  id: number;
+  slug: string;
+  name: string;
+  description?: string;
+  base_price: number;
+  image_url?: string;
+  video_url?: string;
+  poster_url?: string;
+  video_duration_sec?: ProductOutVideoDurationSec;
+  video_steps?: ProductOutVideoSteps;
+  tags?: string[];
+  prep_units?: number;
+  available?: boolean;
+  groups?: GroupOut[];
+}
+
+export interface QuoteIn {
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  items: QuoteItemIn[];
+}
+
+export interface QuoteItemIn {
+  product_id: number;
+  option_ids?: number[];
+  /**
+   * @minimum 1
+   * @maximum 10
+   */
+  quantity?: number;
+}
+
+export interface QuoteLineOut {
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+}
+
+export interface QuoteOut {
+  lines: QuoteLineOut[];
+  total: number;
+  currency: string;
+}
+
+export type ValidationErrorLocItem = string | number;
+
+export type ValidationErrorCtx = { [key: string]: unknown };
+
+export interface ValidationError {
+  loc: ValidationErrorLocItem[];
+  msg: string;
+  type: string;
+  input?: unknown;
+  ctx?: ValidationErrorCtx;
+}
+
 export type HealthHealthGet200 = {[key: string]: string};
 
 export type DbCheckDbCheckGet200 = {[key: string]: string};
@@ -46,6 +160,148 @@ export const healthHealthGet = async ( options?: RequestInit): Promise<healthHea
   
   const data: healthHealthGetResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as healthHealthGetResponse
+}
+
+
+
+/**
+ * @summary  List Locations
+ */
+export type listLocationsLocationsGetResponse200 = {
+  data: LocationOut[]
+  status: 200
+}
+    
+export type listLocationsLocationsGetResponseSuccess = (listLocationsLocationsGetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listLocationsLocationsGetResponse = (listLocationsLocationsGetResponseSuccess)
+
+export const getListLocationsLocationsGetUrl = () => {
+
+
+  
+
+  return `/locations`
+}
+
+export const listLocationsLocationsGet = async ( options?: RequestInit): Promise<listLocationsLocationsGetResponse> => {
+  
+  const res = await fetch(getListLocationsLocationsGetUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: listLocationsLocationsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listLocationsLocationsGetResponse
+}
+
+
+
+/**
+ * @summary  Get Menu
+ */
+export type getMenuLocationsLocationIdMenuGetResponse200 = {
+  data: MenuOut
+  status: 200
+}
+
+export type getMenuLocationsLocationIdMenuGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getMenuLocationsLocationIdMenuGetResponseSuccess = (getMenuLocationsLocationIdMenuGetResponse200) & {
+  headers: Headers;
+};
+export type getMenuLocationsLocationIdMenuGetResponseError = (getMenuLocationsLocationIdMenuGetResponse422) & {
+  headers: Headers;
+};
+
+export type getMenuLocationsLocationIdMenuGetResponse = (getMenuLocationsLocationIdMenuGetResponseSuccess | getMenuLocationsLocationIdMenuGetResponseError)
+
+export const getGetMenuLocationsLocationIdMenuGetUrl = (locationId: number,) => {
+
+
+  
+
+  return `/locations/${locationId}/menu`
+}
+
+export const getMenuLocationsLocationIdMenuGet = async (locationId: number, options?: RequestInit): Promise<getMenuLocationsLocationIdMenuGetResponse> => {
+  
+  const res = await fetch(getGetMenuLocationsLocationIdMenuGetUrl(locationId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getMenuLocationsLocationIdMenuGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getMenuLocationsLocationIdMenuGetResponse
+}
+
+
+
+/**
+ * @summary  Quote
+ */
+export type quoteLocationsLocationIdQuotePostResponse200 = {
+  data: QuoteOut
+  status: 200
+}
+
+export type quoteLocationsLocationIdQuotePostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type quoteLocationsLocationIdQuotePostResponseSuccess = (quoteLocationsLocationIdQuotePostResponse200) & {
+  headers: Headers;
+};
+export type quoteLocationsLocationIdQuotePostResponseError = (quoteLocationsLocationIdQuotePostResponse422) & {
+  headers: Headers;
+};
+
+export type quoteLocationsLocationIdQuotePostResponse = (quoteLocationsLocationIdQuotePostResponseSuccess | quoteLocationsLocationIdQuotePostResponseError)
+
+export const getQuoteLocationsLocationIdQuotePostUrl = (locationId: number,) => {
+
+
+  
+
+  return `/locations/${locationId}/quote`
+}
+
+export const quoteLocationsLocationIdQuotePost = async (locationId: number,
+    quoteIn: QuoteIn, options?: RequestInit): Promise<quoteLocationsLocationIdQuotePostResponse> => {
+  
+  const res = await fetch(getQuoteLocationsLocationIdQuotePostUrl(locationId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      quoteIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: quoteLocationsLocationIdQuotePostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as quoteLocationsLocationIdQuotePostResponse
 }
 
 

@@ -7,4 +7,4 @@ lint:
 	uv run mypy app
 
 seed:
-	@echo "seed появится в фазе 02"
+	uv run python scripts/seed.py
