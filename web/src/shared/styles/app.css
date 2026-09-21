@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-primary: var(--primary);
+  --color-primary-2: var(--primary-2);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-panel: var(--panel);
+  --color-panel-text: var(--panel-text);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --radius-control: var(--r-control);
+  --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
+  --radius-tile: var(--r-tile);
+}
+
+/* Запасная светлая тема для проверки data-theme (MVP тёмный). */
+[data-theme="light"] {
+  --bg: var(--panel);
+  --text: var(--panel-text);
+}

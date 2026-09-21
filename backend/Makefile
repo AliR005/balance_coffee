@@ -1,0 +1,10 @@
+test:
+	uv run pytest
+
+lint:
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy app
+
+seed:
+	@echo "seed появится в фазе 02"

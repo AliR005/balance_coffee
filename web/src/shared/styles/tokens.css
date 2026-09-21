@@ -1,0 +1,165 @@
+/* Balance — дизайн-токены v2 (тёмный интерфейс, тёплая палитра).
+   Единственный источник цветов, шрифтов, радиусов, теней и движения.
+   Компоненты используют ТОЛЬКО эти переменные.
+   Медь взята на глаз со скриншота логотипа: сверь --copper с брендбуком.
+   Шрифты: Onest (@fontsource/onest, cyrillic + latin, 300–700) и Caveat (500–600, только подпись-акцент). */
+
+:root {
+  /* ── Палитра ──────────────────────────────────────────── */
+  --coal: #0c0a09;
+  --roast-1: #12100e;
+  --roast-2: #171412;
+  --roast-3: #201b18;
+  --roast-4: #2b2521;
+  --oat: #f5ece4;
+  --oat-dim: #a99b91;
+  --oat-faint: #7a6e66;
+  --peach: #f3d8c3;
+  --peach-deep: #e6bf9f;
+  --copper: #c58c67;
+  --caramel: #e0b48c;
+  --cream: #f7ede4;
+  --cream-2: #efe1d4;
+  --ink: #2a1f1b;
+  --ink-dim: #6b5d55;
+  --sage: #8fc2a0;
+  --clay: #e58a78;
+
+  /* ── Семантика ────────────────────────────────────────── */
+  --bg: var(--coal);
+  --surface: var(--roast-2);
+  --surface-2: var(--roast-3);
+  --surface-3: var(--roast-4);
+  --text: var(--oat);
+  --text-2: var(--oat-dim);
+  --text-3: var(--oat-faint); /* только для неактивного и декора */
+  --line: rgb(255 236 222 / 0.1);
+  --line-strong: rgb(255 236 222 / 0.2);
+
+  --primary: var(--peach); /* главная кнопка */
+  --primary-2: var(--peach-deep); /* низ градиента кнопки */
+  --on-primary: #24170f;
+  --accent: var(--copper);
+  --accent-text: var(--caramel);
+  --success: var(--sage);
+  --danger: var(--clay);
+
+  /* Светлая «сливочная» панель: оформление заказа и чеки */
+  --panel: var(--cream);
+  --panel-2: var(--cream-2);
+  --panel-text: var(--ink);
+  --panel-text-2: var(--ink-dim);
+  --panel-line: rgb(42 31 27 / 0.12);
+  --panel-solid: var(--ink); /* выбранные состояния на панели */
+  --on-panel-solid: var(--cream);
+
+  /* Свечение под напитком */
+  --glow: rgb(217 160 107 / 0.3);
+
+  /* ── Жидкости и сиропы (чашка, ролик-заглушка) ────────── */
+  --liquid-coffee: #3a2317;
+  --liquid-coffee-strong: #2a170e;
+  --liquid-milk: #f6efe6;
+  --liquid-oat: #eadbbf;
+  --liquid-almond: #efe2d3;
+  --liquid-coconut: #f5f1ea;
+  --syrup-vanilla: #e9d6a4;
+  --syrup-caramel: #c88a47;
+  --syrup-hazelnut: #a4744e;
+  --syrup-salted-caramel: #d9a15a;
+
+  /* ── Типографика ──────────────────────────────────────── */
+  --font-sans:
+    "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-script: "Caveat", "Segoe Script", cursive;
+  --text-xs: 0.75rem; /* 12 */
+  --text-sm: 0.875rem; /* 14 */
+  --text-base: 1rem; /* 16 */
+  --text-lg: 1.125rem; /* 18 */
+  --text-xl: 1.5rem; /* 24 */
+  --text-2xl: 1.875rem; /* 30 */
+  --text-3xl: 2.5rem; /* 40 */
+  --text-hero: 3.625rem; /* 58, только десктопный hero */
+  --text-code: 2.125rem; /* 34, номер заказа */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --leading-tight: 1.05;
+  --leading-body: 1.5;
+
+  /* ── Радиусы по ролям ─────────────────────────────────── */
+  --r-control: 999px; /* кнопки, чипы, переключатели, степпер */
+  --r-input: 16px;
+  --r-tile: 20px; /* строки, панели, выбор объёма */
+  --r-card: 24px; /* карточка напитка */
+  --r-panel: 28px; /* большие блоки, итог заказа */
+  --r-sheet: 36px; /* окно видео, sheet */
+  --r-phone: 48px;
+
+  /* ── Отступы (шаг 4px) ────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px; /* поля страницы */
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --page-x: 20px;
+  --tap: 44px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ── Тени и стекло ────────────────────────────────────── */
+  --shadow-cta: 0 8px 24px rgb(230 191 159 / 0.18);
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 0.5);
+  --glass-bg: rgb(18 14 12 / 0.55);
+  --glass-blur: 10px; /* размытие только у плавающих элементов */
+
+  /* ── Движение ─────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-1: 150ms;
+  --dur-2: 250ms;
+  --dur-3: 500ms;
+  --dur-ring: 1600ms;
+
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+    --dur-ring: 1ms;
+  }
+}
+
+/* ── База ─────────────────────────────────────────────── */
+html {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: var(--leading-body);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+[hidden] {
+  display: none !important;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

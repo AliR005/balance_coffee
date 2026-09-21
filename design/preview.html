@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>balance — дизайн приложения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0a09; --bg-2:#12100e; --surface:#171412; --surface-2:#201b18; --surface-3:#2b2521;
+  --line:rgb(255 236 222 / .10); --line-strong:rgb(255 236 222 / .20);
+  --text:#f5ece4; --text-2:#a99b91; --text-3:#7a6e66;
+  --peach:#f3d8c3; --peach-2:#e6bf9f; --on-peach:#24170f;
+  --copper:#c58c67; --caramel:#e0b48c;
+  --cream:#f7ede4; --cream-2:#efe1d4; --ink:#2a1f1b; --ink-2:#6b5d55;
+  --success:#8fc2a0; --danger:#e58a78;
+  --font:'Onest',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --script:'Caveat','Segoe Script',cursive;
+  --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.34,1.56,.64,1);
+  color-scheme:dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;background:var(--bg)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+h1,h2,h3,h4,p{margin:0}
+.tabular{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--peach);outline-offset:2px}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+.ic{flex:none;display:block}
+
+/* ───── кнопки ───── */
+.btn{height:48px;padding:0 24px;border-radius:999px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap;transition:transform .15s var(--ease),background .2s;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:linear-gradient(180deg,var(--peach),var(--peach-2));color:var(--on-peach);box-shadow:0 8px 24px rgb(230 191 159 / .18)}
+.btn.ghost{border:1px solid var(--line-strong);color:var(--text)}
+.btn.ghost:hover{background:rgb(255 236 222 / .06)}
+.btn.wide{flex:1}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ib.g{background:rgb(18 14 12 / .55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--line)}
+.ib.round{border:1px solid var(--line-strong);width:56px;height:56px}
+
+/* ───── hero ───── */
+.hero{position:relative;margin:20px auto 0;border-radius:36px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(55% 70% at 74% 48%,rgb(217 160 107 / .30),transparent 70%),radial-gradient(40% 50% at 8% 100%,rgb(90 120 70 / .18),transparent 70%),#0a0807}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 36px;position:relative;z-index:3}
+.brand{color:var(--text);text-decoration:none;display:flex;align-items:center;gap:10px;font-weight:600;font-size:22px;letter-spacing:.01em}
+.brand svg{color:var(--peach)}
+.links{display:flex;gap:34px;font-size:15px}
+.links a{color:var(--text);opacity:.8;text-decoration:none}
+.links a:hover{opacity:1}
+.nav .right{display:flex;align-items:center;gap:14px}
+.hero-body{display:grid;grid-template-columns:1.05fr 1fr;align-items:center;padding:0 36px;min-height:520px;position:relative}
+.hero h1{font-size:clamp(34px,4.4vw,58px);font-weight:300;line-height:1.04;letter-spacing:-.025em}
+.hero h1 em{font-style:normal;color:var(--caramel)}
+.hero .lead{margin:22px 0 32px;max-width:440px;color:var(--text-2);font-size:17px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.stage{position:relative;display:grid;place-items:center;min-height:520px}
+.glass{width:min(100%,350px);transform:translateX(-36px);height:auto;filter:drop-shadow(0 30px 40px rgb(0 0 0 / .55));overflow:visible}
+.tagline{position:absolute;top:14px;left:2%;font-family:var(--script);font-size:32px;line-height:1;color:var(--peach);transform:rotate(-6deg);opacity:.95}
+.watch{position:absolute;right:0;bottom:36px;display:flex;align-items:center;gap:12px;font-size:12.5px;line-height:1.35;color:var(--text);text-decoration:none;max-width:172px}
+.watch .ring{width:68px;height:68px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;position:relative;flex:none;background:rgb(12 10 9 / .35);backdrop-filter:blur(6px)}
+.watch .ring::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid var(--peach);opacity:0;animation:pulse 2.8s var(--ease) infinite}
+@keyframes pulse{0%{transform:scale(.85);opacity:.6}70%,100%{transform:scale(1.15);opacity:0}}
+.feats{display:flex;gap:40px;flex-wrap:wrap;padding:8px 36px 34px;position:relative;z-index:2}
+.feats div{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-2);line-height:1.35}
+.feats b{display:block;color:var(--text);font-weight:500;font-size:14px}
+.feats .ic{color:var(--caramel)}
+
+/* стеклянный кофе */
+.glass .sw path{animation:sw 11s ease-in-out infinite alternate}
+.glass .sw .s2{animation-duration:14s;animation-delay:-4s}
+.glass .sw .s3{animation-duration:9s;animation-delay:-2s}
+.glass .sw .s4{animation-duration:16s;animation-delay:-7s}
+@keyframes sw{from{transform:translate(-10px,-8px)}to{transform:translate(12px,10px)}}
+.glass .ice{animation:bob 6s ease-in-out infinite alternate}
+.glass .i2{animation-duration:7.5s;animation-delay:-2s}
+.glass .i3{animation-duration:5.2s;animation-delay:-3s}
+.glass .i4{animation-duration:8.4s;animation-delay:-1s}
+@keyframes bob{from{transform:translateY(-4px) rotate(-2deg)}to{transform:translateY(6px) rotate(3deg)}}
+.glass .fl{animation:fl 7s ease-in-out infinite alternate}
+.glass .f2{animation-duration:9s;animation-delay:-3s}
+.glass .f3{animation-duration:6s;animation-delay:-1s}
+.glass .f4{animation-duration:8s;animation-delay:-5s}
+.glass .f5{animation-duration:10s;animation-delay:-2s}
+@keyframes fl{from{transform:translateY(-10px) rotate(-6deg)}to{transform:translateY(12px) rotate(8deg)}}
+
+/* ───── секции ───── */
+.sec{padding:72px 0 8px}
+.sec h2{font-size:clamp(28px,3.4vw,40px);font-weight:300;letter-spacing:-.02em;margin-bottom:10px}
+.sec .lede{color:var(--text-2);max-width:640px;margin-bottom:36px}
+.phones{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(390px,100%),1fr));gap:40px 24px;justify-items:center}
+figure{margin:0;width:min(390px,100%)}
+figcaption{color:var(--text-2);font-size:14px;margin:0 0 12px 6px}
+.phone{position:relative;width:100%;height:880px;border-radius:48px;overflow:hidden;background:var(--bg);border:1px solid var(--line-strong);box-shadow:0 0 0 6px #050403,0 30px 60px rgb(0 0 0 / .5);isolation:isolate}
+.sb{height:44px;padding:14px 26px 0;display:flex;justify-content:space-between;font-size:14px;font-weight:600;position:relative;z-index:5}
+.sbi{display:flex;gap:3px;align-items:flex-end;height:12px}
+.sbi i{width:3px;background:currentColor;border-radius:1px}
+.sbi i:nth-child(1){height:5px}.sbi i:nth-child(2){height:8px}.sbi i:nth-child(3){height:11px}
+.sbi .bt{width:20px;height:10px;border:1px solid currentColor;border-radius:3px;background:linear-gradient(90deg,currentColor 75%,transparent 75%);margin-left:6px;opacity:.9}
+.pad{padding:0 20px}
+
+/* меню */
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 0}
+.lg{display:flex;align-items:center;gap:8px;font-weight:600;font-size:19px}
+.lg svg{color:var(--peach)}
+.tools{display:flex;align-items:center;gap:6px}
+.pill{height:36px;padding:0 12px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:13px;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.pill .ic{color:var(--caramel)}
+.cnt{position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:9px;background:var(--peach);color:var(--on-peach);font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px;transform:scale(0);transition:transform .3s var(--spring)}
+.cnt.on{transform:scale(1)}
+.h1m{font-size:30px;font-weight:400;letter-spacing:-.02em;line-height:1.1;padding:18px 20px 0}
+.subm{padding:8px 20px 0;color:var(--text-2);font-size:14px;max-width:320px}
+.again{margin:14px 20px 0;padding:10px 10px 10px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.again .mini{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;overflow:hidden}
+.again .mini svg{width:36px}
+.again div.t{flex:1;font-size:13px;line-height:1.3}.again .t b{display:block;font-weight:600;font-size:14px}.again .t span{color:var(--text-2)}
+.again .btn{height:36px;padding:0 14px;font-size:13px}
+.chips{display:flex;gap:8px;padding:14px 20px 12px;overflow-x:auto;scrollbar-width:none}
+.chip{height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--line-strong);font-size:13px;font-weight:500;white-space:nowrap;color:var(--text);transition:background .2s,color .2s}
+.chip[aria-pressed="true"]{background:var(--peach);color:var(--on-peach);border-color:var(--peach)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px}
+.empty{grid-column:1/-1;padding:40px 12px;text-align:center;color:var(--text-2);font-size:14px}
+.card{position:relative;border-radius:24px;overflow:hidden;background:var(--surface);aspect-ratio:3/4;isolation:isolate;border:1px solid var(--line)}
+.card .media{position:absolute;inset:0;display:grid;place-items:start center;padding-top:14px;background:radial-gradient(75% 55% at 50% 34%,rgb(217 160 107 / .28),transparent 72%),linear-gradient(#1c1613,#0f0c0a)}
+.card .brew{width:76%;filter:drop-shadow(0 12px 16px rgb(0 0 0 / .6))}
+.card .scrim{position:absolute;inset:auto 0 0 0;height:58%;background:linear-gradient(transparent,rgb(10 8 7 / .94) 66%)}
+.badge{position:absolute;top:10px;right:10px;height:24px;padding:0 9px;border-radius:12px;background:rgb(18 14 12 / .55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
+.card .info{position:absolute;left:12px;right:12px;bottom:12px}
+.card h4{font-size:16px;font-weight:600}
+.card p{font-size:11px;color:var(--text-2);line-height:1.3;margin:2px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .pr{display:flex;align-items:center;justify-content:space-between}
+.card .pr b{font-size:16px;font-weight:600}
+.add{width:34px;height:34px;border-radius:50%;background:var(--peach);color:var(--on-peach);display:grid;place-items:center;transition:transform .2s var(--spring)}
+.add:active{transform:scale(.88)}
+.prog{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--peach);transform-origin:left;animation:prog var(--dur) linear infinite;opacity:.9}
+@keyframes prog{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.tabbar{position:absolute;left:12px;right:12px;bottom:14px;height:64px;border-radius:32px;background:rgb(28 23 20 / .82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;z-index:6}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--text-2);min-width:64px}
+.tabbar .on{color:var(--peach)}
+
+/* «видео» приготовления (чашка сверху) */
+.brew{overflow:visible;display:block}
+.brew .spin{transform-box:fill-box;transform-origin:50% 50%;animation:spin 16s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brew .rip{transform-box:fill-box;transform-origin:50% 50%;animation:ripple var(--dur) ease-out infinite}
+@keyframes ripple{0%,3%{transform:scale(.15);opacity:0}6%{opacity:.7}15%{transform:scale(1);opacity:0}16%,18%{transform:scale(.15);opacity:0}21%{opacity:.7}29%{transform:scale(1);opacity:0}100%{transform:scale(1);opacity:0}}
+.brew .stream{transform-box:fill-box;transform-origin:50% 0%;animation:stream var(--dur) ease-in-out infinite;opacity:0}
+@keyframes stream{0%,28%{transform:scaleY(0);opacity:0}33%{opacity:1;transform:scaleY(1)}58%{opacity:1;transform:scaleY(1)}63%{opacity:0;transform:scaleY(1)}100%{opacity:0;transform:scaleY(0)}}
+.brew .pool{transform-box:fill-box;transform-origin:50% 50%;animation:pool var(--dur) var(--ease) infinite;opacity:0}
+@keyframes pool{0%,30%{transform:scale(0);opacity:0}34%{opacity:1}64%{transform:scale(1);opacity:1}92%{transform:scale(1);opacity:1}98%,100%{transform:scale(1);opacity:0}}
+.brew .pop{transform-box:fill-box;transform-origin:50% 50%;animation:pop var(--dur) var(--spring) infinite;opacity:0}
+@keyframes pop{0%,58%{transform:scale(0);opacity:0}66%{transform:scale(1.1);opacity:1}70%{transform:scale(1);opacity:1}92%{transform:scale(1);opacity:1}98%,100%{transform:scale(1);opacity:0}}
+.brew .p2{animation-delay:.18s}.brew .p3{animation-delay:.36s}
+.paused *,.paused,.hold *,.hold{animation-play-state:paused!important}
+
+/* окно напитка */
+.video{position:relative;height:340px;background:radial-gradient(70% 60% at 50% 48%,rgb(217 160 107 / .30),transparent 72%),linear-gradient(#1b1512,#0c0a09);border-radius:0 0 36px 36px;overflow:hidden}
+.video .brew{position:absolute;left:50%;top:66px;width:212px;margin-left:-106px;transition:transform .5s var(--spring);filter:drop-shadow(0 18px 22px rgb(0 0 0 / .6))}
+.vtop{position:absolute;inset:0 0 auto 0;z-index:4}
+.vbar{display:flex;justify-content:space-between;padding:6px 20px 0}
+.ctrl{position:absolute;left:16px;right:16px;bottom:16px;display:flex;align-items:center;gap:12px;z-index:4}
+.ctrl .ib{width:38px;height:38px}
+.bar{flex:1;height:4px;border-radius:2px;background:rgb(255 255 255 / .18);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--peach);transform-origin:left;animation:prog var(--dur) linear infinite}
+.tm{font-size:12px;color:var(--text)}
+.steps{display:flex;gap:8px;padding:14px 20px 0}
+.stp{height:28px;padding:0 12px;border-radius:14px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;border:1px solid var(--line-strong);color:var(--text-2)}
+.stp.a1{animation:hl1 var(--dur) infinite}.stp.a2{animation:hl2 var(--dur) infinite}.stp.a3{animation:hl3 var(--dur) infinite}
+@keyframes hl1{0%,28%{background:var(--peach);color:var(--on-peach);border-color:var(--peach)}32%,100%{background:transparent;color:var(--text-2);border-color:var(--line-strong)}}
+@keyframes hl2{0%,28%{background:transparent;color:var(--text-2);border-color:var(--line-strong)}32%,62%{background:var(--peach);color:var(--on-peach);border-color:var(--peach)}66%,100%{background:transparent;color:var(--text-2);border-color:var(--line-strong)}}
+@keyframes hl3{0%,62%{background:transparent;color:var(--text-2);border-color:var(--line-strong)}66%,94%{background:var(--peach);color:var(--on-peach);border-color:var(--peach)}98%,100%{background:transparent;color:var(--text-2);border-color:var(--line-strong)}}
+.pn{padding:14px 20px 0}
+.tag{display:inline-block;height:26px;line-height:24px;padding:0 12px;border-radius:13px;border:1px solid var(--line-strong);font-size:12px;color:var(--caramel)}
+.pn h3{font-size:30px;font-weight:400;letter-spacing:-.02em;margin:10px 0 4px}
+.pn .ds{color:var(--text-2);font-size:14px;max-width:320px}
+.prow{display:flex;align-items:baseline;gap:12px;margin:12px 0 4px}
+.prow b{font-size:30px;font-weight:600}
+.prow span{font-size:13px;color:var(--success)}
+.lbl{font-size:13px;color:var(--text-2);margin:14px 0 8px}
+.sizes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sizes button{height:56px;border-radius:16px;border:1px solid var(--line-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;font-weight:600;transition:background .2s,border-color .2s,color .2s}
+.sizes small{font-weight:400;font-size:11px;color:var(--text-2)}
+.sizes button[aria-pressed="true"]{background:var(--peach);border-color:var(--peach);color:var(--on-peach)}
+.sizes button[aria-pressed="true"] small{color:var(--on-peach);opacity:.7}
+.mk{display:flex;gap:6px;flex-wrap:wrap}
+.mk button{height:36px;padding:0 11px 0 9px;border-radius:18px;border:1px solid var(--line-strong);font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.mk i{width:12px;height:12px;border-radius:50%;border:1px solid rgb(255 255 255 / .25)}
+.mk button[aria-pressed="true"]{background:var(--surface-3);border-color:var(--peach);color:var(--peach)}
+.cta2{position:absolute;left:0;right:0;bottom:0;display:flex;gap:12px;padding:14px 20px 26px;background:linear-gradient(transparent,var(--bg) 30%)}
+
+/* оформление (сливочная панель) */
+.phone.cream{display:flex;flex-direction:column;background:var(--cream);color:var(--ink);border-color:rgb(0 0 0 / .1)}
+.cream .sb{color:var(--ink)}
+.hd{display:flex;align-items:center;gap:12px;padding:6px 20px 0;font-size:18px;font-weight:500}
+.hd .ib{width:36px;height:36px;margin-left:-8px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px 0}
+.mode{border-radius:20px;padding:14px 12px;text-align:center;background:#fff;border:1px solid rgb(42 31 27 / .12);display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:600;font-size:15px;transition:background .25s var(--ease),color .25s,transform .2s var(--spring)}
+.mode small{font-weight:400;font-size:12px;color:var(--ink-2)}
+.mode[aria-pressed="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.mode[aria-pressed="true"] small{color:#cbbcb0}
+.mode:active{transform:scale(.98)}
+.loc{margin:12px 20px 0;height:50px;border-radius:16px;background:#fff;border:1px solid rgb(42 31 27 / .10);display:flex;align-items:center;gap:10px;padding:0 14px;font-size:14px;width:calc(100% - 40px);text-align:left}
+.loc .ic{color:var(--copper)}
+.loc span{flex:1}.loc small{color:var(--ink-2);display:block;font-size:12px;line-height:1.2}
+.loc b{font-weight:600;font-size:14px;display:block;line-height:1.2}
+.when{padding:14px 20px 0}
+.when h4{font-size:16px;font-weight:600;margin-bottom:2px}
+.when p{font-size:13px;color:var(--ink-2);margin-bottom:10px}
+.slots{display:flex;gap:8px;flex-wrap:wrap}
+.slot{height:38px;padding:0 12px;border-radius:19px;border:1px solid rgb(42 31 27 / .18);font-size:13px;font-weight:500;background:#fff}
+.slot[aria-pressed="true"]{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.slot:disabled{opacity:.4;text-decoration:line-through;cursor:not-allowed}
+.orderc{margin:14px 20px 0;padding:12px;border-radius:20px;background:#fff;border:1px solid rgb(42 31 27 / .08);display:flex;gap:12px;align-items:center}
+.orderc .th{width:60px;height:60px;border-radius:14px;background:linear-gradient(#1c1613,#0f0c0a);display:grid;place-items:center;flex:none;overflow:hidden}
+.orderc .th svg{width:52px}
+.orderc .mid{flex:1;min-width:0}
+.orderc b{display:block;font-weight:600;font-size:15px}
+.orderc small{display:block;color:var(--ink-2);font-size:12px}
+.qty{display:inline-flex;align-items:center;gap:2px;margin-top:6px;border:1px solid rgb(42 31 27 / .15);border-radius:16px;height:30px}
+.qty button{width:30px;height:30px;display:grid;place-items:center}
+.qty output{min-width:18px;text-align:center;font-size:13px;font-weight:600}
+.orderc .pp{font-weight:600;font-size:15px;align-self:flex-start;padding-top:2px}
+.bonusr{margin:10px 20px 0;padding:10px 14px;border-radius:16px;background:var(--cream-2);display:flex;align-items:center;gap:12px;font-size:13px}
+.bonusr .ic{color:var(--copper)}
+.bonusr span{flex:1;line-height:1.3}.bonusr b{font-weight:600}
+.sw2{width:46px;height:28px;border-radius:14px;background:rgb(42 31 27 / .22);position:relative;transition:background .25s}
+.sw2::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .3s var(--spring);box-shadow:0 1px 3px rgb(0 0 0 / .3)}
+.sw2[aria-checked="true"]{background:var(--ink)}
+.sw2[aria-checked="true"]::after{transform:translateX(18px)}
+.total{margin:auto 12px 0;border-radius:28px;background:var(--ink);color:var(--cream);padding:16px 16px 14px}
+.total .row{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:#cbbcb0;margin-bottom:2px}
+.total .row.big{color:var(--cream);font-size:16px;margin:4px 0 12px}
+.total .row.big b{font-size:22px;font-weight:600}
+.total .btn{width:100%}
+.payr{padding:14px 20px 22px;display:flex;gap:12px;align-items:center;font-size:12px;color:var(--ink-2)}
+.payr b{display:block;color:var(--ink);font-size:13px;font-weight:600}
+.payr .ic{color:var(--copper)}
+
+/* бонусы */
+.ringw{position:relative;width:210px;height:210px;margin:14px auto 0}
+.ringw svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringw .bg{stroke:var(--surface-3)}
+.ringw .fg{stroke:url(#ringg);stroke-linecap:round;stroke-dasharray:452;stroke-dashoffset:452}
+.go .fg{animation:ringfill 1.6s var(--ease) forwards}
+@keyframes ringfill{to{stroke-dashoffset:145}}
+.ringc{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ringc b{font-size:46px;font-weight:600;line-height:1}
+.ringc span{font-size:13px;color:var(--text-2);margin-top:4px}
+.lvl{margin:22px 20px 0;padding:16px;border-radius:20px;background:var(--surface);border:1px solid var(--line)}
+.lvl .r{display:flex;justify-content:space-between;font-size:13px;color:var(--text-2)}
+.lvl .r b{color:var(--text);font-weight:600}
+.lvl .bar{height:6px;margin:12px 0 8px;background:var(--surface-3)}
+.lvl .bar i{animation:none;transform:scaleX(0);transition:transform 1.6s var(--ease)}
+.go .lvl .bar i{transform:scaleX(.68)}
+.lvl .marks{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3)}
+.earn{margin:22px 20px 0}
+.earn h4{font-size:15px;font-weight:500;margin-bottom:10px}
+.earn .it{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:14px}
+.earn .it .ic{color:var(--caramel)}
+.earn .it span{flex:1}.earn .it em{font-style:normal;color:var(--text-2);font-size:13px}
+.hist{margin:20px 20px 0}.hist h4{font-size:15px;font-weight:500;margin-bottom:6px}.hist .it{display:flex;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);font-size:14px}.hist small{display:block;color:var(--text-2);font-size:12px}.hist em{font-style:normal;font-weight:600;color:var(--success)}.hist em.m{color:var(--text-2)}
+.abs-btn{position:absolute;left:20px;right:20px;bottom:26px}
+
+/* старт */
+.welcome{background:radial-gradient(70% 45% at 50% 40%,rgb(217 160 107 / .30),transparent 70%),linear-gradient(#0e0b0a,#080605)}
+.welcome .glass{position:absolute;left:50%;top:118px;width:300px;margin-left:-150px}
+.welcome .wt{position:absolute;left:0;right:0;bottom:130px;text-align:center;padding:0 24px}
+.welcome .script{font-family:var(--script);font-size:38px;line-height:1;color:var(--peach);transform:rotate(-3deg);display:block}
+.welcome h3{font-size:28px;font-weight:300;letter-spacing:-.02em;margin-top:10px}
+.welcome .bts{position:absolute;left:20px;right:20px;bottom:30px;display:flex;gap:10px}
+.wlogo{position:absolute;top:60px;left:0;right:0;display:flex;justify-content:center;color:var(--peach);z-index:3}
+.drops i{position:absolute;border-radius:50%;background:var(--milk,#fff);opacity:0;animation:drop 1.6s var(--ease) 1s 1 forwards}
+@keyframes drop{0%{transform:translate(0,0) scale(.2);opacity:0}25%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+.wlogo .drops{position:absolute;left:50%;top:26px}
+
+/* мой заказ */
+.ostat{margin:16px 20px 0;border-radius:28px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.ostat .vid2{position:relative;height:210px;background:radial-gradient(70% 60% at 50% 45%,rgb(217 160 107 / .28),transparent 72%),linear-gradient(#1b1512,#0e0b0a)}
+.ostat .vid2 .brew{position:absolute;left:50%;top:14px;width:172px;margin-left:-86px;filter:drop-shadow(0 12px 16px rgb(0 0 0 / .6))}
+.ostat .vid2 .cap{position:absolute;left:14px;bottom:12px;font-size:12px;color:var(--text);background:rgb(18 14 12 / .55);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:4px 10px}
+.ostat .vid2 .bar{position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0;background:transparent}
+.ostat .body{padding:16px}
+.ostat .code{display:flex;justify-content:space-between;align-items:baseline}
+.ostat .code b{font-size:34px;font-weight:600;letter-spacing:-.02em}
+.ostat .code span{font-size:13px;color:var(--text-2)}
+.ostat h4{font-size:18px;font-weight:500;margin:6px 0 2px;color:var(--peach)}
+.ostat p{font-size:13px;color:var(--text-2)}
+.trk{display:grid;grid-template-columns:auto 1fr auto 1fr auto;align-items:center;margin:16px 0 6px}
+.d{width:14px;height:14px;border-radius:50%;background:var(--surface-3)}
+.d.done{background:var(--peach)}.d.now{background:var(--bg);border:4px solid var(--peach)}
+.l{height:3px;background:var(--surface-3);border-radius:2px}.l.done{background:var(--peach)}
+.lb{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2)}.lb b{color:var(--text);font-weight:600}
+.oit{margin:12px 20px 0;padding:14px 16px;border-radius:20px;background:var(--surface);border:1px solid var(--line);font-size:14px;display:flex;justify-content:space-between;gap:12px}
+.oit small{display:block;color:var(--text-2);font-size:12px}
+.earned{margin:10px 20px 0;padding:12px 16px;border-radius:20px;background:linear-gradient(180deg,var(--peach),var(--peach-2));color:var(--on-peach);display:flex;align-items:center;gap:12px;font-size:13px}
+.earned b{display:block;font-size:14px}
+.cancel{position:absolute;left:20px;right:20px;bottom:26px;height:48px;border-radius:24px;border:1px solid var(--line-strong);color:var(--text-3);opacity:.9}
+.cancelnote{position:absolute;left:20px;right:20px;bottom:84px;text-align:center;font-size:12px;color:var(--text-2)}
+
+/* система */
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:20px;padding-bottom:80px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:24px}
+.box h3{font-size:18px;font-weight:500;margin-bottom:14px}
+.sws{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sw{font-size:11px;color:var(--text-2);line-height:1.3}
+.sw i{display:block;height:44px;border-radius:12px;border:1px solid var(--line);margin-bottom:6px}
+.sw b{display:block;color:var(--text);font-weight:500;font-size:12px}
+.spec{font-size:14px;color:var(--text-2)}
+.spec b{color:var(--text);font-weight:500}
+.spec li{margin-bottom:8px}
+.spec ul{margin:0;padding-left:18px}
+.tp .a{font-size:44px;font-weight:300;letter-spacing:-.025em;line-height:1.1}
+.tp .b{font-size:22px;font-weight:600;margin-top:10px}
+.tp .c{font-size:15px;color:var(--text-2);margin-top:6px}
+.tp .s{font-family:var(--script);font-size:32px;color:var(--peach);margin-top:8px;line-height:1}
+footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--text-3);font-size:13px}
+
+@media (max-width:900px){
+  .links{display:none}
+  .nav{padding:20px 22px}
+  .hero-body{grid-template-columns:1fr;padding:0 22px}
+  .stage{min-height:440px}
+  .feats{padding:8px 22px 28px;gap:22px}
+  .tagline{right:2%;top:10px}
+  .watch{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .brew .pop,.brew .pool{opacity:1!important;transform:none!important}
+  .brew .stream{display:none}
+  .go .fg{stroke-dashoffset:145}
+}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="cer" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#e9dfd5"/><stop offset="1" stop-color="#c9bcaf"/></radialGradient>
+    <radialGradient id="cer2" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".65" stop-color="#efe6dc"/><stop offset="1" stop-color="#d4c7ba"/></radialGradient>
+    <radialGradient id="cof" cx="50%" cy="45%" r="62%"><stop offset="0" stop-color="#7a4626"/><stop offset=".6" stop-color="#4a2812"/><stop offset="1" stop-color="#2e170a"/></radialGradient>
+    <radialGradient id="crema" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#e0a46a" stop-opacity=".9"/><stop offset="1" stop-color="#e0a46a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3dfc8"/><stop offset=".28" stop-color="#e7c39a"/><stop offset=".55" stop-color="#b57438"/><stop offset=".8" stop-color="#6b3a1b"/><stop offset="1" stop-color="#2e170a"/></linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>
+    <linearGradient id="hl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="bean" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#7a4c2c"/><stop offset=".55" stop-color="#3a2314"/><stop offset="1" stop-color="#1b0e06"/></radialGradient>
+    <linearGradient id="ringg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3d8c3"/><stop offset="1" stop-color="#c58c67"/></linearGradient>
+    <filter id="blur6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="blur2"><feGaussianBlur stdDeviation="1.8"/></filter>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="hero">
+    <nav class="nav" aria-label="Основная навигация">
+      <a class="brand" href="#" aria-label="balance"><span data-mark="30"></span>balance</a>
+      <div class="links"><a href="#screens">Меню</a><a href="#screens">О нас</a><a href="#screens">Бонусы</a><a href="#screens">Контакты</a></div>
+      <div class="right">
+        <button class="ib" aria-label="Корзина"><span data-ic="cart" data-s="22"></span></button>
+        <a class="btn primary" href="#screens" style="height:44px;padding:0 22px">Заказать</a>
+      </div>
+    </nav>
+    <div class="hero-body">
+      <div>
+        <h1>Кофе, собранный под тебя<br><em>и готовый к твоему приходу</em></h1>
+        <p class="lead">Выбирай напиток, состав и время. Мы начнём готовить, когда ты будешь рядом.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#screens">Выбрать кофе <span data-ic="arrow" data-s="18"></span></a>
+          <a class="btn ghost" href="#screens"><span data-ic="play" data-s="12"></span> Как это работает</a>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="tagline" aria-hidden="true">найди свой баланс</div>
+        <div data-glass></div>
+        <a class="watch" href="#screens"><span class="ring"><span data-ic="play" data-s="22"></span></span><span>Смотреть, как мы готовим ваш кофе</span></a>
+      </div>
+    </div>
+    <div class="feats">
+      <div><span data-ic="clock" data-s="26"></span><span><b>Заказ ко времени</b>не нужно ждать у стойки</span></div>
+      <div><span data-ic="cup" data-s="26"></span><span><b>Заказ на месте</b>быстро и удобно</span></div>
+      <div><span data-ic="gift" data-s="26"></span><span><b>Бонусы</b>за каждую покупку</span></div>
+    </div>
+  </header>
+
+  <section class="sec" id="screens">
+    <h2>Приложение</h2>
+    <p class="lede">PWA для телефона: ставится на экран, работает как приложение. Каждая карточка это маленький фильм о том, как готовится напиток. Здесь «фильмы» нарисованы анимацией, в продукте на их месте будут настоящие ролики. Карточки, выбор объёма и молока, время, бонусы и стрелка корзины кликабельны.</p>
+    <div class="phones">
+      <figure><figcaption>1 · Меню с живыми карточками</figcaption><div class="phone" id="p-menu"></div></figure>
+      <figure><figcaption>2 · Напиток: ролик приготовления и состав</figcaption><div class="phone" id="p-detail"></div></figure>
+      <figure><figcaption>3 · Оформление: на месте или ко времени</figcaption><div class="phone cream" id="p-checkout"></div></figure>
+      <figure><figcaption>4 · Бонусы</figcaption><div class="phone" id="p-bonus"></div></figure>
+      <figure><figcaption>5 · Старт</figcaption><div class="phone welcome" id="p-welcome"></div></figure>
+      <figure><figcaption>6 · Мой заказ</figcaption><div class="phone" id="p-order"></div></figure>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Система</h2>
+    <p class="lede">Тёмный интерфейс, тёплая палитра: фон цвета жжёного зерна, светлые персиково-кремовые акценты, медь из логотипа. Красками интерфейса служат сами напитки.</p>
+    <div class="sys">
+      <div class="box">
+        <h3>Цвет</h3>
+        <div class="sws">
+          <div class="sw"><i style="background:#0c0a09"></i><b>bg</b>#0C0A09</div>
+          <div class="sw"><i style="background:#171412"></i><b>surface</b>#171412</div>
+          <div class="sw"><i style="background:#2b2521"></i><b>surface-3</b>#2B2521</div>
+          <div class="sw"><i style="background:#f5ece4"></i><b>text</b>#F5ECE4</div>
+          <div class="sw"><i style="background:#a99b91"></i><b>text-2</b>#A99B91</div>
+          <div class="sw"><i style="background:linear-gradient(#f3d8c3,#e6bf9f)"></i><b>peach</b>#F3D8C3</div>
+          <div class="sw"><i style="background:#c58c67"></i><b>copper</b>#C58C67</div>
+          <div class="sw"><i style="background:#f7ede4"></i><b>cream</b>#F7EDE4</div>
+        </div>
+      </div>
+      <div class="box tp">
+        <h3>Шрифты</h3>
+        <div class="a">Onest Light</div>
+        <div class="b">Onest Semibold для цен и названий</div>
+        <div class="c">Onest Regular для описаний. Кириллица родная.</div>
+        <div class="s">Caveat — только подпись-акцент</div>
+      </div>
+      <div class="box">
+        <h3>Движение</h3>
+        <ul class="spec">
+          <li><b>Карточки живые.</b> Ролик крутится сам, без звука, только у видимых карточек.</li>
+          <li><b>Реакция на действие.</b> Объём и молоко меняют размер и цвет напитка, цена пересчитывается.</li>
+          <li><b>Бонусное кольцо</b> заполняется при показе, брызги молока вылетают из «b» на старте.</li>
+          <li><b>Стекло на тёмном:</b> размытие только у плавающих элементов. Нет параллакса и бесконечных декоративных анимаций.</li>
+          <li>При «уменьшении движения» ролики заменяются кадром-постером.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Ролики на карточках</h3>
+        <ul class="spec">
+          <li><b>Формат:</b> MP4 (H.264) и WebM, без звука, 4:5 (720×900), 6–15 секунд, до 1,5 МБ, бесшовная петля.</li>
+          <li><b>Постер:</b> JPG/WebP, показывается сразу и при экономии трафика.</li>
+          <li><b>Воспроизведение:</b> <code>muted autoplay loop playsinline</code>, только когда карточка в кадре.</li>
+          <li><b>Съёмка:</b> вид сверху, три шага (эспрессо, молоко, рисунок), один стиль света и фон для всех напитков.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <footer>balance · дизайн-концепция. Тексты, цены и адрес — примеры.</footer>
+</div>
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const ICONS={
+ plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',back:'<path d="M15 18l-6-6 6-6"/>',chev:'<path d="M6 9l6 6 6-6"/>',
+ cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2.5l2.2 11h10.6L21 8H7"/>',
+ play:'<path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/>',pause:'<path d="M8 5v14M16 5v14"/>',
+ heart:'<path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/>',
+ home:'<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+ cup:'<path d="M5 8h11v6a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM16 10h2a2.5 2.5 0 0 1 0 5h-2M8 3v2M12 3v2"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ pin:'<path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8c-2-4-6-4-6-1.5S10 8 12 8zM12 8c2-4 6-4 6-1.5S14 8 12 8z"/>',
+ volx:'<path d="M11 5L6 9H3v6h3l5 4zM16 9l5 6M21 9l-5 6"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0M16 4.5a3.5 3.5 0 0 1 0 7M19 20a7 7 0 0 0-3-5.8"/>',
+ arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4M3 7v11a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>'
+};
+const ic=(n,s=20,sw=1.75)=>`<svg class="ic" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const bMark=(s=28)=>`<svg viewBox="0 0 100 100" width="${s}" height="${s}" fill="none" aria-hidden="true"><rect x="14" y="6" width="22" height="88" rx="11" fill="currentColor"/><circle cx="60" cy="66" r="24" stroke="currentColor" stroke-width="18"/></svg>`;
+const rub=n=>new Intl.NumberFormat('ru-RU').format(n)+'\u00a0₽';
+
+/* ───── напитки и «ролики» приготовления ───── */
+const H='M100 132C58 104 60 62 84 62C94 62 100 70 100 76C100 70 106 62 116 62C140 62 142 104 100 132Z';
+const DRINKS={
+ latte:{name:'Латте',desc:'Нежный, бархатный, с идеальной пенкой',price:320,dur:9,art:'heart',m:'#f6efe6',t:'0:09',cat:'classic',steps:['Эспрессо','Молоко','Рисунок']},
+ cappuccino:{name:'Капучино',desc:'Классика, которая всегда в моде',price:290,dur:11,art:'tulip',m:'#f4ebdf',t:'0:11',cat:'classic'},
+ raf:{name:'Раф',desc:'Нежный, сливочный, с ванильной ноткой',price:340,dur:12,art:'full',m:'#f3e3c8',t:'0:12',cat:'author'},
+ americano:{name:'Американо',desc:'Чистый вкус настоящего кофе',price:240,dur:7,art:'crema',m:'#d9b48a',t:'0:07',cat:'classic'}
+};
+function artOf(a){
+ const st='fill="var(--m)" stroke="rgba(110,64,32,.38)" stroke-width="3"';
+ if(a==='heart')return `<g class="pop"><path d="${H}" fill="var(--m)"/><g transform="translate(100 97) scale(.62) translate(-100 -97)"><path d="${H}" fill="none" stroke="rgba(110,64,32,.4)" stroke-width="2.4"/></g><g transform="translate(100 97) scale(.3) translate(-100 -97)"><path d="${H}" fill="none" stroke="rgba(110,64,32,.4)" stroke-width="3"/></g></g>`;
+ if(a==='tulip')return `<g class="pop"><g transform="translate(100 112) scale(.52) translate(-100 -97)"><path d="${H}" ${st}/></g></g><g class="pop p2"><g transform="translate(100 91) scale(.42) translate(-100 -97)"><path d="${H}" ${st}/></g></g><g class="pop p3"><g transform="translate(100 73) scale(.32) translate(-100 -97)"><path d="${H}" ${st}/></g></g>`;
+ if(a==='full')return `<circle class="pool" cx="100" cy="100" r="57" fill="var(--m)"/><g class="pop"><circle cx="82" cy="84" r="3" fill="rgba(190,130,70,.55)"/><circle cx="118" cy="92" r="2.4" fill="rgba(190,130,70,.55)"/><circle cx="96" cy="118" r="3.2" fill="rgba(190,130,70,.55)"/><circle cx="124" cy="116" r="2" fill="rgba(190,130,70,.55)"/><circle cx="76" cy="108" r="2.2" fill="rgba(190,130,70,.55)"/><path d="M78 100C90 78 118 78 124 98S104 128 86 118" fill="none" stroke="rgba(190,130,70,.5)" stroke-width="2.4" stroke-linecap="round"/></g>`;
+ return `<circle class="pool" cx="100" cy="100" r="57" fill="rgba(217,160,107,.34)"/><g class="pop"><circle cx="100" cy="100" r="44" fill="none" stroke="rgba(255,230,200,.45)" stroke-width="1.5"/><circle cx="100" cy="100" r="28" fill="none" stroke="rgba(255,230,200,.4)" stroke-width="1.5"/><ellipse cx="82" cy="80" rx="14" ry="6" fill="rgba(255,255,255,.22)" transform="rotate(-30 82 80)"/></g>`;
+}
+function brew(k,extra=''){const d=DRINKS[k];return `<svg class="brew ${extra}" viewBox="0 0 200 200" role="img" aria-label="Как готовится ${d.name}" style="--m:${d.m}">
+<circle cx="100" cy="100" r="96" fill="url(#cer)"/><circle cx="100" cy="100" r="80" fill="none" stroke="rgba(60,40,25,.1)" stroke-width="1.5"/>
+<path d="M160 90h24a10 10 0 0 1 0 20h-24z" fill="url(#cer2)"/><circle cx="100" cy="100" r="70" fill="url(#cer2)"/><circle cx="100" cy="100" r="62" fill="#efe6dc"/><circle cx="100" cy="100" r="58" fill="url(#cof)"/>
+<g class="spin"><ellipse cx="100" cy="100" rx="50" ry="24" fill="url(#crema)" opacity=".55"/></g>
+<circle class="rip" cx="100" cy="100" r="40" fill="none" stroke="#e0a46a" stroke-width="1.6"/>
+${artOf(d.art)}<path class="stream" d="M96 -2H104L101.5 98H98.5Z" fill="var(--m)"/></svg>`}
+
+/* ───── стакан для hero и старта ───── */
+let gid=0;
+function glass(){const id='gc'+(++gid);
+const bean=(x,y,r,s,c,f='')=>`<g class="fl ${c}" ${f?`filter="url(#${f})"`:''}><g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><ellipse rx="12" ry="17" fill="url(#bean)"/><path d="M0 -15C7 -5 -7 5 0 15" stroke="#140a05" stroke-width="2.4" fill="none" stroke-linecap="round"/></g></g>`;
+return `<svg class="glass" viewBox="0 0 320 470" role="img" aria-label="Холодный латте со льдом">
+<defs><clipPath id="${id}"><path d="M70 62H250L232 414Q230 436 208 436H112Q90 436 88 414Z"/></clipPath></defs>
+${bean(34,130,-30,1.1,'f2','blur2')}${bean(290,88,40,.8,'f3','blur2')}${bean(300,330,-20,1.2,'f4')}${bean(28,320,25,.9,'f5')}
+<g clip-path="url(#${id})">
+ <rect x="60" y="52" width="200" height="392" fill="url(#liq)"/>
+ <g class="sw" filter="url(#blur6)">
+  <path class="s1" d="M60 150C120 120 170 190 260 140L260 230C190 262 140 200 60 240Z" fill="#f2dcc4" opacity=".85"/>
+  <path class="s2" d="M60 262C110 232 170 302 260 252L260 332C190 362 130 302 60 342Z" fill="#8c522c" opacity=".85"/>
+  <path class="s3" d="M60 92C120 62 180 122 260 82L260 152C200 192 130 122 60 172Z" fill="#c98a52" opacity=".6"/>
+  <path class="s4" d="M90 336C140 306 200 356 260 326L260 440L90 440Z" fill="#2a170c" opacity=".9"/>
+ </g>
+ <g class="ice i1"><rect x="96" y="96" width="66" height="62" rx="14" transform="rotate(-14 129 127)" fill="url(#ice)" stroke="rgba(255,255,255,.45)"/></g>
+ <g class="ice i2"><rect x="168" y="128" width="58" height="56" rx="13" transform="rotate(12 197 156)" fill="url(#ice)" stroke="rgba(255,255,255,.4)"/></g>
+ <g class="ice i3"><rect x="112" y="214" width="60" height="58" rx="13" transform="rotate(8 142 243)" fill="url(#ice)" stroke="rgba(255,255,255,.35)"/></g>
+ <g class="ice i4"><rect x="170" y="262" width="52" height="50" rx="12" transform="rotate(-10 196 287)" fill="url(#ice)" stroke="rgba(255,255,255,.3)"/></g>
+ <rect x="80" y="62" width="16" height="360" fill="url(#hl)" opacity=".55"/><rect x="234" y="70" width="4" height="330" fill="#fff" opacity=".16"/>
+</g>
+<path d="M70 62H250L232 414Q230 436 208 436H112Q90 436 88 414Z" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
+<ellipse cx="160" cy="62" rx="90" ry="8" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"/>
+<circle cx="112" cy="330" r="2.5" fill="#fff" opacity=".4"/><circle cx="196" cy="382" r="2" fill="#fff" opacity=".35"/><circle cx="104" cy="250" r="3" fill="#fff" opacity=".3"/>
+${bean(258,44,15,1,'f1')}${bean(58,430,-15,.8,'f3','blur2')}
+</svg>`}
+
+/* ───── экраны ───── */
+const sb=`<div class="sb"><span>9:41</span><span class="sbi"><i></i><i></i><i></i><i class="bt"></i></span></div>`;
+const tabbar=a=>`<nav class="tabbar" aria-label="Разделы">${[['home','Главная'],['cup','Меню'],['star','Бонусы'],['user','Профиль']].map(([i,t],x)=>`<button class="${x===a?'on':''}">${ic(i,22)}${t}</button>`).join('')}</nav>`;
+const card=k=>{const d=DRINKS[k];return `<article class="card" data-cat="${d.cat}" style="--dur:${d.dur}s"><div class="media">${brew(k)}</div><div class="scrim"></div><span class="badge">${ic('play',9)}<span class="tabular">${d.t}</span></span><div class="info"><h4>${d.name}</h4><p>${d.desc}</p><div class="pr"><b class="tabular">${rub(d.price)}</b><button class="add" aria-label="Добавить: ${d.name}">${ic('plus',18,2.2)}</button></div></div><i class="prog"></i></article>`};
+
+$('#p-menu').innerHTML=`${sb}
+<div class="top"><div class="lg">${bMark(28)}balance</div><div class="tools"><button class="pill">${ic('pin',15)}Садовая, 12${ic('chev',14)}</button><button class="ib" aria-label="Корзина">${ic('cart',22)}<span class="cnt" id="cnt">0</span></button></div></div>
+<h3 class="h1m">Выбери свой кофе</h3>
+<p class="subm">Каждый напиток — маленькая история. Смотри, как он готовится.</p>
+<div class="again" style="--dur:9s"><div class="mini">${brew('latte')}</div><div class="t"><b>Латте, M</b><span>Прошлый · 320 ₽</span></div><button class="btn primary">Повторить</button></div>
+<div class="chips" role="group" aria-label="Категории">${[['all','Все'],['classic','Классика'],['author','Авторские'],['cold','Холодные']].map(([v,t],i)=>`<button class="chip" data-f="${v}" aria-pressed="${i===0}">${t}</button>`).join('')}</div>
+<div class="grid2" id="grid">${['latte','cappuccino','raf','americano'].map(card).join('')}<p class="empty" id="empty" hidden>Здесь появятся холодные напитки. Пока их нет.</p></div>
+${tabbar(0)}`;
+
+$('#p-detail').style.setProperty('--dur','9s');
+$('#p-detail').innerHTML=`<div class="video" id="vid">${brew('latte')}
+<div class="vtop">${sb}<div class="vbar"><button class="ib g" aria-label="Назад">${ic('back',22)}</button><button class="ib g" aria-label="Звук выключен">${ic('volx',20)}</button></div></div>
+<div class="ctrl"><button class="ib g" id="pp" aria-label="Пауза">${ic('pause',16,2.6)}</button><div class="bar"><i></i></div><span class="tm tabular" id="tm">0:00 / 0:09</span></div></div>
+<div class="steps"><span class="stp a1">1 Эспрессо</span><span class="stp a2">2 Молоко</span><span class="stp a3">3 Рисунок</span></div>
+<div class="pn"><span class="tag">Классика</span><h3>Латте</h3><p class="ds">Нежный, бархатный, с идеальной пенкой и сбалансированным вкусом эспрессо.</p>
+<div class="prow"><b class="tabular" id="dp">320 ₽</b><span id="db">+16 баллов</span></div>
+<div class="lbl">Объём</div><div class="sizes" id="sizes"><button data-v="S" aria-pressed="false">S<small>250 мл</small></button><button data-v="M" aria-pressed="true">M<small>350 мл</small></button><button data-v="L" aria-pressed="false">L<small>450 мл</small></button></div>
+<div class="lbl">Молоко</div><div class="mk" id="milks"><button data-c="#f6efe6" data-p="0" aria-pressed="true"><i style="background:#f6efe6"></i>Коровье</button><button data-c="#eadbbf" data-p="50" aria-pressed="false"><i style="background:#eadbbf"></i>Овсяное +50</button><button data-c="#efe2d3" data-p="50" aria-pressed="false"><i style="background:#efe2d3"></i>Миндаль +50</button></div></div>
+<div class="cta2"><button class="btn primary wide" id="addbtn">Добавить в заказ ${ic('plus',18,2.2)}</button><button class="ib round" id="fav" aria-label="В избранное" aria-pressed="false">${ic('heart',22)}</button></div>`;
+
+$('#p-checkout').innerHTML=`${sb}<div class="hd"><button class="ib" aria-label="Назад">${ic('back',22)}</button>Оформление заказа</div>
+<div class="modes"><button class="mode" data-m="here" aria-pressed="false">${ic('cup',24)}На месте<small>Заберу сейчас</small></button><button class="mode" data-m="later" aria-pressed="true">${ic('clock',24)}На время<small>Укажу время</small></button></div>
+<button class="loc">${ic('pin',20)}<span><b>Садовая, 12</b><small>Открыто до 22:00</small></span>${ic('chev',18)}</button>
+<div class="when" id="when"></div>
+<div class="orderc"><div class="th" style="--dur:9s">${brew('latte')}</div><div class="mid"><b>Латте</b><small>M · 350 мл · Коровье молоко</small><div class="qty"><button aria-label="Меньше" data-q="-1">${ic('minus',14,2.2)}</button><output id="qv">1</output><button aria-label="Больше" data-q="1">${ic('plus',14,2.2)}</button></div></div><div class="pp tabular" id="line">320 ₽</div></div>
+<div class="bonusr">${ic('gift',20)}<span><b>Списать 120 баллов</b><br>Баланс 320 · 1 балл = 1 ₽</span><button class="sw2" id="bsw" role="switch" aria-checked="false" aria-label="Списать баллы"></button></div>
+<div class="total"><div class="row"><span>Заказ</span><span class="tabular" id="t1">320 ₽</span></div><div class="row" id="trow" hidden><span>Бонусами</span><span class="tabular" id="t2">−120 ₽</span></div><div class="row big"><span>Итого <small style="color:#cbbcb0;font-size:12px" id="earn">+16 баллов</small></span><b class="tabular" id="t3">320 ₽</b></div><button class="btn primary" id="go">Заказать на 10:30</button></div>
+<div class="payr">${ic('wallet',24)}<span><b>Оплата при получении</b>Онлайн-оплата появится позже</span></div>`;
+
+$('#p-bonus').innerHTML=`${sb}<div class="hd" style="justify-content:center;position:relative"><button class="ib" aria-label="Назад" style="position:absolute;left:20px">${ic('back',22)}</button>Бонусы</div>
+<div class="ringw"><svg viewBox="0 0 170 170" aria-hidden="true"><circle class="bg" cx="85" cy="85" r="72" fill="none" stroke-width="10"/><circle class="fg" cx="85" cy="85" r="72" fill="none" stroke-width="10"/></svg><div class="ringc"><b class="tabular" id="bn">0</b><span>баллов</span></div></div>
+<div class="lvl"><div class="r"><span>Уровень <b>«Латте»</b></span><span>До «Баланс»: <b class="tabular">680 ₽</b></span></div><div class="bar"><i></i></div><div class="marks"><span>Эспрессо</span><span>Латте</span><span>Баланс</span></div></div>
+<div class="earn"><h4>Как зарабатывать</h4>
+<div class="it">${ic('cup',22)}<span>Покупай кофе</span><em>5% баллами</em></div>
+<div class="it">${ic('users',22)}<span>Приглашай друзей</span><em>+100 баллов</em></div>
+<div class="it">${ic('gift',22)}<span>День рождения</span><em>×2 баллов</em></div></div>
+<div class="hist"><h4>История</h4><div class="it"><div>Латте · Садовая, 12<small>Сегодня</small></div><em>+16</em></div><div class="it"><div>Списано на заказ<small>Вчера</small></div><em class="m">−120</em></div></div>
+<div class="abs-btn"><button class="btn primary" style="width:100%">Потратить бонусы</button></div>`;
+
+const drops=[[8,0,30,-26],[14,4,46,-6],[6,8,36,18],[10,-2,20,-38],[7,10,52,10],[9,6,60,-20]].map(([s,y,dx,dy],i)=>`<i style="width:${s}px;height:${s}px;left:${8+i*2}px;top:${y}px;--dx:${dx}px;--dy:${dy}px;animation-delay:${1+i*.08}s"></i>`).join('');
+$('#p-welcome').innerHTML=`<div style="position:absolute;inset:0 0 auto 0;z-index:5">${sb}</div><div class="wlogo">${bMark(56)}<div class="drops" aria-hidden="true">${drops}</div></div>${glass()}
+<div class="wt"><span class="script">найди свой баланс</span><h3>Кофе к твоему приходу</h3></div>
+<div class="bts"><button class="btn primary wide">Заказать</button><button class="btn ghost wide">Меню</button></div>`;
+
+$('#p-order').style.setProperty('--dur','9s');
+$('#p-order').innerHTML=`${sb}<div class="hd"><button class="ib" aria-label="Назад">${ic('back',22)}</button>Мой заказ</div>
+<div class="ostat"><div class="vid2">${brew('latte').replace('--m:#f6efe6','--m:#eadbbf')}<span class="cap">Так готовим ваш латте</span><div class="bar"><i></i></div></div>
+<div class="body"><div class="code"><b class="tabular">TV-042</b><span>Садовая, 12</span></div><h4>Готовим ваш кофе</h4><p>Заберёте к 10:30</p>
+<div class="trk" aria-label="Стадии заказа"><span class="d done"></span><span class="l done"></span><span class="d now"></span><span class="l"></span><span class="d"></span></div>
+<div class="lb"><span>Принят</span><b>Готовится</b><span>Готов</span></div></div></div>
+<div class="oit"><div><b>Латте, M</b><small>Овсяное молоко</small></div><b class="tabular">370 ₽</b></div>
+<div class="earned">${ic('gift',22)}<span><b>+18 баллов</b>Начислим, когда заберёте заказ</span></div>
+<p class="cancelnote">Отмена недоступна: напиток уже готовится.</p><button class="cancel" disabled>Отменить заказ</button>`;
+
+/* значки и заготовки в разметке */
+$$('[data-ic]').forEach(e=>e.outerHTML=ic(e.dataset.ic,+e.dataset.s||20));
+$$('[data-mark]').forEach(e=>e.outerHTML=bMark(+e.dataset.mark));
+$$('[data-glass]').forEach(e=>e.outerHTML=glass());
+
+/* ───── интерактив: меню ───── */
+let cart=0;
+$$('#p-menu .add').forEach(b=>b.addEventListener('click',()=>{cart++;const c=$('#cnt');c.textContent=cart;c.classList.add('on')}));
+$$('#p-menu .chip').forEach(b=>b.addEventListener('click',()=>{
+  $$('#p-menu .chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  const f=b.dataset.f;let n=0;
+  $$('#grid .card').forEach(c=>{const on=f==='all'||c.dataset.cat===f;c.hidden=!on;n+=on});
+  $('#empty').hidden=n>0;
+}));
+
+/* ───── напиток ───── */
+const D={size:'M',p:0};const base={S:290,M:320,L:360};const sc={S:.9,M:1,L:1.08};
+function upDetail(){const p=base[D.size]+D.p;$('#dp').textContent=rub(p);$('#db').textContent='+'+Math.floor(p*.05)+' баллов';$('#vid .brew').style.transform=`scale(${sc[D.size]})`}
+$$('#sizes button').forEach(b=>b.addEventListener('click',()=>{D.size=b.dataset.v;$$('#sizes button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));upDetail()}));
+$$('#milks button').forEach(b=>b.addEventListener('click',()=>{D.p=+b.dataset.p;$$('#milks button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('#vid .brew').style.setProperty('--m',b.dataset.c);upDetail()}));
+$('#fav').addEventListener('click',e=>{const b=e.currentTarget,on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(on));b.style.color=on?'var(--peach)':'';b.querySelector('svg').style.fill=on?'currentColor':'none'});
+$('#pp').addEventListener('click',e=>{const h=$('#p-detail').classList.toggle('hold');e.currentTarget.innerHTML=ic(h?'play':'pause',16,h?2:2.6);e.currentTarget.setAttribute('aria-label',h?'Воспроизвести':'Пауза')});
+(function tick(){const i=$('#vid .bar i'),a=i&&i.getAnimations()[0];if(a&&a.currentTime!=null){const s=Math.floor((a.currentTime%9000)/1000);$('#tm').textContent='0:0'+s+' / 0:09'}requestAnimationFrame(tick)})();
+
+/* ───── оформление ───── */
+const C={mode:'later',slot:'10:30',q:1,bonus:false};
+function whenHTML(){
+  if(C.mode==='here')return `<h4>Готовим сразу</h4><p>Ориентир — около 7 минут. Позовём вас по номеру заказа.</p>`;
+  const s=[['asap','Скорее'],['10:30','10:30'],['10:40','10:40',1],['10:50','10:50'],['11:00','11:00']];
+  return `<h4>Когда забрать</h4><p>Сегодня. «Скорее» — около 10:20.</p><div class="slots">${s.map(([v,t,d])=>`<button class="slot" data-v="${v}" aria-pressed="${C.slot===v}" ${d?'disabled title="Время занято"':''}>${t}</button>`).join('')}</div>`}
+function upCheckout(){
+  $('#when').innerHTML=whenHTML();
+  $$('#when .slot').forEach(b=>b.addEventListener('click',()=>{C.slot=b.dataset.v;upCheckout()}));
+  $$('#p-checkout .mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.m===C.mode)));
+  const sub=320*C.q,ap=C.bonus?Math.min(120,Math.floor(sub*.5)):0,tot=sub-ap;
+  $('#qv').textContent=C.q;$('#line').textContent=rub(sub);$('#t1').textContent=rub(sub);
+  $('#trow').hidden=!ap;$('#t2').textContent='−'+rub(ap);$('#t3').textContent=rub(tot);$('#earn').textContent='+'+Math.floor(tot*.05)+' баллов';
+  $('#go').textContent=C.mode==='here'?'Заказать':C.slot==='asap'?'Заказать на 10:20':'Заказать на '+C.slot;
+}
+$$('#p-checkout .mode').forEach(b=>b.addEventListener('click',()=>{C.mode=b.dataset.m;upCheckout()}));
+$$('#p-checkout [data-q]').forEach(b=>b.addEventListener('click',()=>{C.q=Math.min(5,Math.max(1,C.q+ +b.dataset.q));upCheckout()}));
+$('#bsw').addEventListener('click',e=>{C.bonus=!C.bonus;e.currentTarget.setAttribute('aria-checked',String(C.bonus));upCheckout()});
+upCheckout();
+
+/* ───── бонусы: счётчик и кольцо при показе ───── */
+function countUp(){const el=$('#bn'),t=performance.now();(function f(n){const k=Math.min(1,(n-t)/1400);el.textContent=Math.round(320*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f)})(t)}
+
+/* ───── экономим ресурсы: анимация только у видимого ───── */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  e.target.classList.toggle('paused',!e.isIntersecting);
+  if(e.isIntersecting&&e.target.id==='p-bonus'&&!e.target.classList.contains('go')){e.target.classList.add('go');countUp()}
+}),{threshold:.15});
+$$('.phone,.hero').forEach(p=>io.observe(p));
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){$('#bn').textContent='320'}
+</script>
+</body>
+</html>
