@@ -1,3 +1,5 @@
+.PHONY: test lint seed
+
 test:
 	uv run pytest
 

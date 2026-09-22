@@ -19,7 +19,7 @@ seed:
 	$(MAKE) -C backend seed
 
 migrate:
-	docker compose exec api alembic upgrade head
+	docker compose exec api /app/.venv/bin/alembic upgrade head
 
 reset-demo:
 	@echo "будет в фазе 09"

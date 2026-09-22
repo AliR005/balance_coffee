@@ -13,13 +13,13 @@ export function BonusRing({ balance, progress = 0.68, label = "баллов" }: 
   const [ref, visible] = useVisible<HTMLDivElement>();
   const reduced = useReducedMotion();
   const [shown, setShown] = useState(0);
-  const started = useRef(false);
+  const done = useRef(false);
 
   useEffect(() => {
-    if (!visible || started.current) return;
-    started.current = true;
+    if (!visible || done.current) return;
     if (reduced) {
       setShown(balance);
+      done.current = true;
       return;
     }
     const t0 = performance.now();
@@ -27,7 +27,11 @@ export function BonusRing({ balance, progress = 0.68, label = "баллов" }: 
     const tick = (now: number) => {
       const k = Math.min(1, (now - t0) / 1600);
       setShown(Math.round(balance * (1 - Math.pow(1 - k, 3))));
-      if (k < 1) raf = requestAnimationFrame(tick);
+      if (k < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        done.current = true;
+      }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
