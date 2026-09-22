@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { UiShowcase } from "../dev/UiShowcase";
 import { hasSeenWelcome } from "../features/cart/store";
@@ -9,6 +10,17 @@ import { OrdersPage } from "../features/orders/OrdersPage";
 import { StartPage } from "../features/welcome/StartPage";
 import { useT } from "../shared/i18n";
 import { HealthPage } from "./pages/HealthPage";
+
+// Экран баристы — отдельным чанком, не попадает в клиентский бандл.
+const StaffLoginPage = lazy(() =>
+  import("../features/barista/StaffLoginPage").then((m) => ({ default: m.StaffLoginPage })),
+);
+const BoardPage = lazy(() =>
+  import("../features/barista/BoardPage").then((m) => ({ default: m.BoardPage })),
+);
+const StoplistPage = lazy(() =>
+  import("../features/barista/StoplistPage").then((m) => ({ default: m.StoplistPage })),
+);
 
 function Stub({ text }: { text: string }) {
   return (
@@ -31,6 +43,30 @@ export function App() {
       <Route path="/order/:id" element={<OrdersPage />} />
       <Route path="/bonus" element={<BonusPage />} />
       <Route path="/profile" element={<Stub text={t.profileSoon} />} />
+      <Route
+        path="/staff"
+        element={
+          <Suspense fallback={null}>
+            <StaffLoginPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/staff/board"
+        element={
+          <Suspense fallback={null}>
+            <BoardPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/staff/stop"
+        element={
+          <Suspense fallback={null}>
+            <StoplistPage />
+          </Suspense>
+        }
+      />
       <Route path="/health" element={<HealthPage />} />
       {import.meta.env.DEV ? <Route path="/dev/ui" element={<UiShowcase />} /> : null}
     </Routes>

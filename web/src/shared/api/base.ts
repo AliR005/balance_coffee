@@ -34,6 +34,19 @@ export async function apiPostEmpty<T>(path: string, init?: RequestInit): Promise
   return (await res.json()) as T;
 }
 
+/** PUT с JSON-телом. */
+export async function apiPut<T>(path: string, body: unknown, init?: RequestInit): Promise<T> {
+  const { headers, ...rest } = init ?? {};
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+    ...rest,
+    headers: { "Content-Type": "application/json", ...(headers ?? {}) },
+  });
+  if (!res.ok) throw await toApiError(res, `PUT ${path}`);
+  return (await res.json()) as T;
+}
+
 async function toApiError(res: Response, fallback: string): Promise<ApiError> {
   let code: string | undefined;
   try {
