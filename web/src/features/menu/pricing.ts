@@ -46,7 +46,7 @@ export function defaultSelection(product: ProductOut): Record<number, number[]> 
   return sel;
 }
 
-/** Прогноз бонусов по SPEC 10.3: 5% вниз (только отображение). */
+/** Прогноз бонусов по SPEC 10.3: 5% от суммы в рублях, вниз (копейки → рубли → 5%). */
 export function bonusPreview(totalKopeks: number): number {
-  return Math.floor(totalKopeks * 0.05);
+  return Math.floor((totalKopeks / 100) * 0.05);
 }

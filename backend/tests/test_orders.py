@@ -171,3 +171,12 @@ async def test_guest_access(api_client) -> None:  # type: ignore[no-untyped-def]
     assert ok.json()["id"] == oid
 
     assert (await api_client.get("/orders/999999", params={"token": token})).status_code == 404
+
+
+async def test_malformed_body_returns_json_422(api_client) -> None:  # type: ignore[no-untyped-def]
+    # Тело без Content-Type: ответ — JSON 422, соединение не рвётся.
+    resp = await api_client.post(
+        "/orders", content=b'{"location_id": 1', headers={"Idempotency-Key": "malformed-1"}
+    )
+    assert resp.status_code == 422
+    assert resp.json()["code"] == "validation_error"

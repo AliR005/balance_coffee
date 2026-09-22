@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { LocationOut } from "../../shared/api/generated/api";
+import { useQuery } from "@tanstack/react-query";
+import type { LocationOut, OrderOut } from "../../shared/api/generated/api";
+import { getGetOrderOrdersOrderIdGetUrl } from "../../shared/api/generated/api";
+import { apiGet } from "../../shared/api/base";
 import { useT } from "../../shared/i18n";
 import { Button } from "../../shared/ui/Button";
 import { Chip } from "../../shared/ui/Chip";
@@ -9,7 +12,10 @@ import { Logo } from "../../shared/ui/Logo";
 import { Sheet } from "../../shared/ui/Sheet";
 import { Skeleton } from "../../shared/ui/Skeleton";
 import { TabBar } from "../../shared/ui/TabBar";
+import { Toast } from "../../shared/ui/Toast";
 import { useCart } from "../cart/store";
+import { myOrders } from "../orders/registry";
+import { rebuildOrder } from "../orders/repeat";
 import { useLocations, useMenu } from "./api";
 import { brewVariantOf } from "./brew";
 
@@ -32,6 +38,56 @@ function useTabs() {
   };
 }
 
+/** Кремовая карточка «Повторить последний заказ» — если есть прошлый заказ. */
+function RepeatCard({ onRepeat }: { onRepeat: (msg: string) => void }) {
+  const t = useT();
+  const nav = useNavigate();
+  const locationId = useCart((s) => s.locationId);
+  const setLocation = useCart((s) => s.setLocation);
+  const addItem = useCart((s) => s.addItem);
+  const [last] = useState(() => myOrders()[0] ?? null);
+
+  const menuQuery = useMenu(last?.locationId ?? locationId);
+  const orderQuery = useQuery({
+    queryKey: ["order", last?.id],
+    queryFn: (): Promise<OrderOut> =>
+      apiGet<OrderOut>(
+        `${getGetOrderOrdersOrderIdGetUrl(last?.id ?? 0)}?token=${encodeURIComponent(last?.token ?? "")}`,
+      ),
+    enabled: last !== null,
+    staleTime: 60_000,
+  });
+
+  if (!last || !orderQuery.data) return null;
+  const firstName = orderQuery.data.items?.[0]?.product_name ?? "";
+  return (
+    <div className="mx-5 mt-3.5 flex items-center gap-3 rounded-tile border border-[var(--line)] bg-surface p-2.5 pl-3.5">
+      <span className="flex-1 text-[13px]">
+        <b className="block text-sm">
+          {firstName}, {orderQuery.data.code}
+        </b>
+        <span className="text-text-2">{t.repeatLast}</span>
+      </span>
+      <Button
+        onClick={() => {
+          if (!menuQuery.data) return;
+          const { ok, dropped } = rebuildOrder(menuQuery.data, orderQuery.data?.items ?? []);
+          if (ok.length === 0) {
+            onRepeat(t.repeatDropped);
+            return;
+          }
+          setLocation(last.locationId, { clear: true });
+          ok.forEach((it) => addItem(last.locationId, it));
+          onRepeat(dropped.length > 0 ? t.repeatDropped : t.added);
+          nav("/checkout");
+        }}
+      >
+        {t.repeat}
+      </Button>
+    </div>
+  );
+}
+
 export function MenuPage() {
   const t = useT();
   const nav = useNavigate();
@@ -45,6 +101,13 @@ export function MenuPage() {
   const [locSheet, setLocSheet] = useState(false);
   const [pendingLoc, setPendingLoc] = useState<LocationOut | null>(null);
   const [category, setCategory] = useState<string>("all");
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // Первая точка по умолчанию.
   useEffect(() => {
@@ -119,6 +182,8 @@ export function MenuPage() {
         {t.menuTitle}
       </h1>
       <p className="max-w-[320px] px-5 pt-2 text-sm text-text-2">{t.menuSubtitle}</p>
+
+      <RepeatCard onRepeat={(msg) => setToast(msg)} />
 
       {menuQuery.isLoading || locQuery.isLoading ? (
         <div className="grid grid-cols-2 gap-3 p-5" role="status" aria-label={t.loading}>
@@ -238,6 +303,7 @@ export function MenuPage() {
         )}
       </Sheet>
 
+      <Toast message={toast} />
       <TabBar tabs={tabs} active="menu" onChange={onChange} />
     </main>
   );

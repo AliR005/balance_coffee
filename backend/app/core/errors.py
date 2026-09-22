@@ -1,6 +1,7 @@
 from typing import Any
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -41,7 +42,11 @@ def register_error_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
+        # errors() может содержать несериализуемое (bytes сырого тела) — кодируем стойко.
+        safe = jsonable_encoder(
+            exc.errors(), custom_encoder={bytes: lambda v: v.decode("utf-8", "replace")}
+        )
         return JSONResponse(
             status_code=422,
-            content=error_payload("validation_error", "Invalid request", {"errors": exc.errors()}),
+            content=error_payload("validation_error", "Invalid request", {"errors": safe}),
         )

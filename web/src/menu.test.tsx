@@ -72,8 +72,8 @@ describe("selection helpers", () => {
     expect(missingRequiredGroups(product, {})).toEqual([1]);
     expect(missingRequiredGroups(product, { 1: [2] })).toEqual([]);
   });
-  it("бонус-превью 5% вниз", () => {
-    expect(bonusPreview(32000)).toBe(1600);
+  it("бонус-превью 5% от рублей, вниз", () => {
+    expect(bonusPreview(32000)).toBe(16);
   });
 });
 
