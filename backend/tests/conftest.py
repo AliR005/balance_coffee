@@ -31,3 +31,29 @@ async def api_client(db_session: AsyncSession):  # type: ignore[no-untyped-def]
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+async def race_client():  # type: ignore[no-untyped-def]
+    """Клиент с отдельной сессией на запрос — для настоящих параллельных гонок."""
+    try:
+        engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+        factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        async with factory() as probe:
+            from sqlalchemy import text as _text
+
+            await probe.execute(_text("SELECT 1"))
+    except Exception as exc:
+        pytest.skip(f"db unavailable: {exc}")
+    app = create_app()
+
+    async def _override():  # type: ignore[no-untyped-def]
+        async with factory() as session:
+            yield session
+
+    app.dependency_overrides[get_session] = _override
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+    app.dependency_overrides.clear()
+    await engine.dispose()

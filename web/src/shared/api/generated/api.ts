@@ -4,6 +4,16 @@
  * Balance API
  * OpenAPI spec version: 0.1.0
  */
+export interface AvailabilityOut {
+  location_id: number;
+  products: ProductAvailabilityOut[];
+  options: OptionAvailabilityOut[];
+}
+
+export interface AvailabilityUpdateIn {
+  is_available: boolean;
+}
+
 export interface CategoryOut {
   id: number;
   slug: string;
@@ -35,9 +45,27 @@ export interface LocationOut {
   is_open_now: boolean;
 }
 
+export interface LoginIn {
+  location_id: number;
+  pin: string;
+}
+
+export interface LoginOut {
+  token: string;
+  location_id: number;
+  expires_at: number;
+}
+
 export interface MenuOut {
   location_id: number;
   categories?: CategoryOut[];
+}
+
+export interface OptionAvailabilityOut {
+  id: number;
+  name: string;
+  group: string;
+  available: boolean;
 }
 
 export type OptionOutVisualAnyOf = { [key: string]: unknown };
@@ -50,6 +78,85 @@ export interface OptionOut {
   price_delta: number;
   visual?: OptionOutVisual;
   available?: boolean;
+}
+
+export type OrderCreateInPickupAt = string | null;
+
+export interface OrderCreateIn {
+  location_id: number;
+  /** @pattern ^(on_site|scheduled)$ */
+  mode?: string;
+  pickup_at?: OrderCreateInPickupAt;
+  /**
+   * @minItems 1
+   * @maxItems 50
+   */
+  items: OrderItemIn[];
+  /**
+   * @minLength 1
+   * @maxLength 128
+   */
+  customer_name: string;
+  /**
+   * @minLength 5
+   * @maxLength 32
+   */
+  customer_phone: string;
+  /** @maxLength 500 */
+  comment?: string;
+  /** @minimum 0 */
+  use_bonus_points?: number;
+}
+
+export interface OrderCreateOut {
+  order: OrderOut;
+  access_token: string;
+}
+
+export interface OrderItemIn {
+  product_id: number;
+  option_ids?: number[];
+  /**
+   * @minimum 1
+   * @maximum 10
+   */
+  quantity?: number;
+}
+
+export type OrderItemOutOptionsItem = { [key: string]: unknown };
+
+export interface OrderItemOut {
+  product_id: number;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  options: OrderItemOutOptionsItem[];
+  line_total: number;
+}
+
+export interface OrderOut {
+  id: number;
+  code: string;
+  location_id: number;
+  status: string;
+  mode: string;
+  customer_name: string;
+  customer_phone: string;
+  comment?: string;
+  pickup_at: string;
+  is_asap: boolean;
+  total: number;
+  currency: string;
+  payment_method: string;
+  bonus_applied?: number;
+  items?: OrderItemOut[];
+  created_at: string;
+}
+
+export interface ProductAvailabilityOut {
+  id: number;
+  name: string;
+  available: boolean;
 }
 
 export type ProductOutVideoDurationSec = number | null;
@@ -81,6 +188,8 @@ export interface QuoteIn {
    * @maxItems 50
    */
   items: QuoteItemIn[];
+  /** @minimum 0 */
+  use_bonus_points?: number;
 }
 
 export interface QuoteItemIn {
@@ -104,6 +213,27 @@ export interface QuoteOut {
   lines: QuoteLineOut[];
   total: number;
   currency: string;
+  bonus_applied?: number;
+}
+
+export interface SlotOut {
+  start: string;
+  available: boolean;
+  remaining: number;
+}
+
+export type SlotsOutAsap = SlotOut | null;
+
+export interface SlotsOut {
+  location_id: number;
+  open: boolean;
+  units: number;
+  asap?: SlotsOutAsap;
+  slots?: SlotOut[];
+}
+
+export interface StatusChangeIn {
+  to_status: string;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -119,6 +249,53 @@ export interface ValidationError {
 }
 
 export type HealthHealthGet200 = {[key: string]: string};
+
+export type SlotsLocationsLocationIdSlotsGetParams = {
+/**
+ * @minimum 1
+ */
+units?: number;
+};
+
+export type GetOrderOrdersOrderIdGetParams = {
+token?: string | null;
+};
+
+export type OrderEventsOrdersOrderIdEventsGetParams = {
+token?: string | null;
+};
+
+export type CancelOrderOrdersOrderIdCancelPostParams = {
+token?: string | null;
+};
+
+export type OrdersStaffOrdersGetParams = {
+token?: string | null;
+};
+
+export type OrdersStreamStaffOrdersStreamGetParams = {
+token?: string | null;
+};
+
+export type ChangeStatusStaffOrdersOrderIdStatusPostParams = {
+token?: string | null;
+};
+
+export type AvailabilityStaffAvailabilityGetParams = {
+token?: string | null;
+};
+
+export type ProductAvailabilityStaffAvailabilityProductsProductIdPutParams = {
+token?: string | null;
+};
+
+export type ProductAvailabilityStaffAvailabilityProductsProductIdPut200 = {[key: string]: boolean};
+
+export type OptionAvailabilityStaffAvailabilityOptionsOptionIdPutParams = {
+token?: string | null;
+};
+
+export type OptionAvailabilityStaffAvailabilityOptionsOptionIdPut200 = {[key: string]: boolean};
 
 export type DbCheckDbCheckGet200 = {[key: string]: string};
 
@@ -302,6 +479,686 @@ export const quoteLocationsLocationIdQuotePost = async (locationId: number,
   
   const data: quoteLocationsLocationIdQuotePostResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as quoteLocationsLocationIdQuotePostResponse
+}
+
+
+
+/**
+ * @summary  Slots
+ */
+export type slotsLocationsLocationIdSlotsGetResponse200 = {
+  data: SlotsOut
+  status: 200
+}
+
+export type slotsLocationsLocationIdSlotsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type slotsLocationsLocationIdSlotsGetResponseSuccess = (slotsLocationsLocationIdSlotsGetResponse200) & {
+  headers: Headers;
+};
+export type slotsLocationsLocationIdSlotsGetResponseError = (slotsLocationsLocationIdSlotsGetResponse422) & {
+  headers: Headers;
+};
+
+export type slotsLocationsLocationIdSlotsGetResponse = (slotsLocationsLocationIdSlotsGetResponseSuccess | slotsLocationsLocationIdSlotsGetResponseError)
+
+export const getSlotsLocationsLocationIdSlotsGetUrl = (locationId: number,
+    params?: SlotsLocationsLocationIdSlotsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/locations/${locationId}/slots?${stringifiedParams}` : `/locations/${locationId}/slots`
+}
+
+export const slotsLocationsLocationIdSlotsGet = async (locationId: number,
+    params?: SlotsLocationsLocationIdSlotsGetParams, options?: RequestInit): Promise<slotsLocationsLocationIdSlotsGetResponse> => {
+  
+  const res = await fetch(getSlotsLocationsLocationIdSlotsGetUrl(locationId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: slotsLocationsLocationIdSlotsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as slotsLocationsLocationIdSlotsGetResponse
+}
+
+
+
+/**
+ * @summary  Create Order
+ */
+export type createOrderOrdersPostResponse201 = {
+  data: OrderCreateOut
+  status: 201
+}
+
+export type createOrderOrdersPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type createOrderOrdersPostResponseSuccess = (createOrderOrdersPostResponse201) & {
+  headers: Headers;
+};
+export type createOrderOrdersPostResponseError = (createOrderOrdersPostResponse422) & {
+  headers: Headers;
+};
+
+export type createOrderOrdersPostResponse = (createOrderOrdersPostResponseSuccess | createOrderOrdersPostResponseError)
+
+export const getCreateOrderOrdersPostUrl = () => {
+
+
+  
+
+  return `/orders`
+}
+
+export const createOrderOrdersPost = async (orderCreateIn: OrderCreateIn, options?: RequestInit): Promise<createOrderOrdersPostResponse> => {
+  
+  const res = await fetch(getCreateOrderOrdersPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      orderCreateIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: createOrderOrdersPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createOrderOrdersPostResponse
+}
+
+
+
+/**
+ * @summary  Get Order
+ */
+export type getOrderOrdersOrderIdGetResponse200 = {
+  data: OrderOut
+  status: 200
+}
+
+export type getOrderOrdersOrderIdGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getOrderOrdersOrderIdGetResponseSuccess = (getOrderOrdersOrderIdGetResponse200) & {
+  headers: Headers;
+};
+export type getOrderOrdersOrderIdGetResponseError = (getOrderOrdersOrderIdGetResponse422) & {
+  headers: Headers;
+};
+
+export type getOrderOrdersOrderIdGetResponse = (getOrderOrdersOrderIdGetResponseSuccess | getOrderOrdersOrderIdGetResponseError)
+
+export const getGetOrderOrdersOrderIdGetUrl = (orderId: number,
+    params?: GetOrderOrdersOrderIdGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/orders/${orderId}?${stringifiedParams}` : `/orders/${orderId}`
+}
+
+export const getOrderOrdersOrderIdGet = async (orderId: number,
+    params?: GetOrderOrdersOrderIdGetParams, options?: RequestInit): Promise<getOrderOrdersOrderIdGetResponse> => {
+  
+  const res = await fetch(getGetOrderOrdersOrderIdGetUrl(orderId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: getOrderOrdersOrderIdGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as getOrderOrdersOrderIdGetResponse
+}
+
+
+
+/**
+ * @summary  Order Events
+ */
+export type orderEventsOrdersOrderIdEventsGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type orderEventsOrdersOrderIdEventsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type orderEventsOrdersOrderIdEventsGetResponseSuccess = (orderEventsOrdersOrderIdEventsGetResponse200) & {
+  headers: Headers;
+};
+export type orderEventsOrdersOrderIdEventsGetResponseError = (orderEventsOrdersOrderIdEventsGetResponse422) & {
+  headers: Headers;
+};
+
+export type orderEventsOrdersOrderIdEventsGetResponse = (orderEventsOrdersOrderIdEventsGetResponseSuccess | orderEventsOrdersOrderIdEventsGetResponseError)
+
+export const getOrderEventsOrdersOrderIdEventsGetUrl = (orderId: number,
+    params?: OrderEventsOrdersOrderIdEventsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/orders/${orderId}/events?${stringifiedParams}` : `/orders/${orderId}/events`
+}
+
+export const orderEventsOrdersOrderIdEventsGet = async (orderId: number,
+    params?: OrderEventsOrdersOrderIdEventsGetParams, options?: RequestInit): Promise<orderEventsOrdersOrderIdEventsGetResponse> => {
+  
+  const res = await fetch(getOrderEventsOrdersOrderIdEventsGetUrl(orderId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: orderEventsOrdersOrderIdEventsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as orderEventsOrdersOrderIdEventsGetResponse
+}
+
+
+
+/**
+ * @summary  Cancel Order
+ */
+export type cancelOrderOrdersOrderIdCancelPostResponse200 = {
+  data: OrderOut
+  status: 200
+}
+
+export type cancelOrderOrdersOrderIdCancelPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type cancelOrderOrdersOrderIdCancelPostResponseSuccess = (cancelOrderOrdersOrderIdCancelPostResponse200) & {
+  headers: Headers;
+};
+export type cancelOrderOrdersOrderIdCancelPostResponseError = (cancelOrderOrdersOrderIdCancelPostResponse422) & {
+  headers: Headers;
+};
+
+export type cancelOrderOrdersOrderIdCancelPostResponse = (cancelOrderOrdersOrderIdCancelPostResponseSuccess | cancelOrderOrdersOrderIdCancelPostResponseError)
+
+export const getCancelOrderOrdersOrderIdCancelPostUrl = (orderId: number,
+    params?: CancelOrderOrdersOrderIdCancelPostParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/orders/${orderId}/cancel?${stringifiedParams}` : `/orders/${orderId}/cancel`
+}
+
+export const cancelOrderOrdersOrderIdCancelPost = async (orderId: number,
+    params?: CancelOrderOrdersOrderIdCancelPostParams, options?: RequestInit): Promise<cancelOrderOrdersOrderIdCancelPostResponse> => {
+  
+  const res = await fetch(getCancelOrderOrdersOrderIdCancelPostUrl(orderId,params),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: cancelOrderOrdersOrderIdCancelPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as cancelOrderOrdersOrderIdCancelPostResponse
+}
+
+
+
+/**
+ * @summary  Login
+ */
+export type loginStaffLoginPostResponse200 = {
+  data: LoginOut
+  status: 200
+}
+
+export type loginStaffLoginPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type loginStaffLoginPostResponseSuccess = (loginStaffLoginPostResponse200) & {
+  headers: Headers;
+};
+export type loginStaffLoginPostResponseError = (loginStaffLoginPostResponse422) & {
+  headers: Headers;
+};
+
+export type loginStaffLoginPostResponse = (loginStaffLoginPostResponseSuccess | loginStaffLoginPostResponseError)
+
+export const getLoginStaffLoginPostUrl = () => {
+
+
+  
+
+  return `/staff/login`
+}
+
+export const loginStaffLoginPost = async (loginIn: LoginIn, options?: RequestInit): Promise<loginStaffLoginPostResponse> => {
+  
+  const res = await fetch(getLoginStaffLoginPostUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      loginIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: loginStaffLoginPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as loginStaffLoginPostResponse
+}
+
+
+
+/**
+ * @summary  Orders
+ */
+export type ordersStaffOrdersGetResponse200 = {
+  data: OrderOut[]
+  status: 200
+}
+
+export type ordersStaffOrdersGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type ordersStaffOrdersGetResponseSuccess = (ordersStaffOrdersGetResponse200) & {
+  headers: Headers;
+};
+export type ordersStaffOrdersGetResponseError = (ordersStaffOrdersGetResponse422) & {
+  headers: Headers;
+};
+
+export type ordersStaffOrdersGetResponse = (ordersStaffOrdersGetResponseSuccess | ordersStaffOrdersGetResponseError)
+
+export const getOrdersStaffOrdersGetUrl = (params?: OrdersStaffOrdersGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/orders?${stringifiedParams}` : `/staff/orders`
+}
+
+export const ordersStaffOrdersGet = async (params?: OrdersStaffOrdersGetParams, options?: RequestInit): Promise<ordersStaffOrdersGetResponse> => {
+  
+  const res = await fetch(getOrdersStaffOrdersGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: ordersStaffOrdersGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as ordersStaffOrdersGetResponse
+}
+
+
+
+/**
+ * @summary  Orders Stream
+ */
+export type ordersStreamStaffOrdersStreamGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type ordersStreamStaffOrdersStreamGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type ordersStreamStaffOrdersStreamGetResponseSuccess = (ordersStreamStaffOrdersStreamGetResponse200) & {
+  headers: Headers;
+};
+export type ordersStreamStaffOrdersStreamGetResponseError = (ordersStreamStaffOrdersStreamGetResponse422) & {
+  headers: Headers;
+};
+
+export type ordersStreamStaffOrdersStreamGetResponse = (ordersStreamStaffOrdersStreamGetResponseSuccess | ordersStreamStaffOrdersStreamGetResponseError)
+
+export const getOrdersStreamStaffOrdersStreamGetUrl = (params?: OrdersStreamStaffOrdersStreamGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/orders/stream?${stringifiedParams}` : `/staff/orders/stream`
+}
+
+export const ordersStreamStaffOrdersStreamGet = async (params?: OrdersStreamStaffOrdersStreamGetParams, options?: RequestInit): Promise<ordersStreamStaffOrdersStreamGetResponse> => {
+  
+  const res = await fetch(getOrdersStreamStaffOrdersStreamGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: ordersStreamStaffOrdersStreamGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as ordersStreamStaffOrdersStreamGetResponse
+}
+
+
+
+/**
+ * @summary  Change Status
+ */
+export type changeStatusStaffOrdersOrderIdStatusPostResponse200 = {
+  data: OrderOut
+  status: 200
+}
+
+export type changeStatusStaffOrdersOrderIdStatusPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type changeStatusStaffOrdersOrderIdStatusPostResponseSuccess = (changeStatusStaffOrdersOrderIdStatusPostResponse200) & {
+  headers: Headers;
+};
+export type changeStatusStaffOrdersOrderIdStatusPostResponseError = (changeStatusStaffOrdersOrderIdStatusPostResponse422) & {
+  headers: Headers;
+};
+
+export type changeStatusStaffOrdersOrderIdStatusPostResponse = (changeStatusStaffOrdersOrderIdStatusPostResponseSuccess | changeStatusStaffOrdersOrderIdStatusPostResponseError)
+
+export const getChangeStatusStaffOrdersOrderIdStatusPostUrl = (orderId: number,
+    params?: ChangeStatusStaffOrdersOrderIdStatusPostParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/orders/${orderId}/status?${stringifiedParams}` : `/staff/orders/${orderId}/status`
+}
+
+export const changeStatusStaffOrdersOrderIdStatusPost = async (orderId: number,
+    statusChangeIn: StatusChangeIn,
+    params?: ChangeStatusStaffOrdersOrderIdStatusPostParams, options?: RequestInit): Promise<changeStatusStaffOrdersOrderIdStatusPostResponse> => {
+  
+  const res = await fetch(getChangeStatusStaffOrdersOrderIdStatusPostUrl(orderId,params),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      statusChangeIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: changeStatusStaffOrdersOrderIdStatusPostResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as changeStatusStaffOrdersOrderIdStatusPostResponse
+}
+
+
+
+/**
+ * @summary  Availability
+ */
+export type availabilityStaffAvailabilityGetResponse200 = {
+  data: AvailabilityOut
+  status: 200
+}
+
+export type availabilityStaffAvailabilityGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type availabilityStaffAvailabilityGetResponseSuccess = (availabilityStaffAvailabilityGetResponse200) & {
+  headers: Headers;
+};
+export type availabilityStaffAvailabilityGetResponseError = (availabilityStaffAvailabilityGetResponse422) & {
+  headers: Headers;
+};
+
+export type availabilityStaffAvailabilityGetResponse = (availabilityStaffAvailabilityGetResponseSuccess | availabilityStaffAvailabilityGetResponseError)
+
+export const getAvailabilityStaffAvailabilityGetUrl = (params?: AvailabilityStaffAvailabilityGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/availability?${stringifiedParams}` : `/staff/availability`
+}
+
+export const availabilityStaffAvailabilityGet = async (params?: AvailabilityStaffAvailabilityGetParams, options?: RequestInit): Promise<availabilityStaffAvailabilityGetResponse> => {
+  
+  const res = await fetch(getAvailabilityStaffAvailabilityGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: availabilityStaffAvailabilityGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as availabilityStaffAvailabilityGetResponse
+}
+
+
+
+/**
+ * @summary  Product Availability
+ */
+export type productAvailabilityStaffAvailabilityProductsProductIdPutResponse200 = {
+  data: ProductAvailabilityStaffAvailabilityProductsProductIdPut200
+  status: 200
+}
+
+export type productAvailabilityStaffAvailabilityProductsProductIdPutResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type productAvailabilityStaffAvailabilityProductsProductIdPutResponseSuccess = (productAvailabilityStaffAvailabilityProductsProductIdPutResponse200) & {
+  headers: Headers;
+};
+export type productAvailabilityStaffAvailabilityProductsProductIdPutResponseError = (productAvailabilityStaffAvailabilityProductsProductIdPutResponse422) & {
+  headers: Headers;
+};
+
+export type productAvailabilityStaffAvailabilityProductsProductIdPutResponse = (productAvailabilityStaffAvailabilityProductsProductIdPutResponseSuccess | productAvailabilityStaffAvailabilityProductsProductIdPutResponseError)
+
+export const getProductAvailabilityStaffAvailabilityProductsProductIdPutUrl = (productId: number,
+    params?: ProductAvailabilityStaffAvailabilityProductsProductIdPutParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/availability/products/${productId}?${stringifiedParams}` : `/staff/availability/products/${productId}`
+}
+
+export const productAvailabilityStaffAvailabilityProductsProductIdPut = async (productId: number,
+    availabilityUpdateIn: AvailabilityUpdateIn,
+    params?: ProductAvailabilityStaffAvailabilityProductsProductIdPutParams, options?: RequestInit): Promise<productAvailabilityStaffAvailabilityProductsProductIdPutResponse> => {
+  
+  const res = await fetch(getProductAvailabilityStaffAvailabilityProductsProductIdPutUrl(productId,params),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      availabilityUpdateIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: productAvailabilityStaffAvailabilityProductsProductIdPutResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as productAvailabilityStaffAvailabilityProductsProductIdPutResponse
+}
+
+
+
+/**
+ * @summary  Option Availability
+ */
+export type optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse200 = {
+  data: OptionAvailabilityStaffAvailabilityOptionsOptionIdPut200
+  status: 200
+}
+
+export type optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponseSuccess = (optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse200) & {
+  headers: Headers;
+};
+export type optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponseError = (optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse422) & {
+  headers: Headers;
+};
+
+export type optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse = (optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponseSuccess | optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponseError)
+
+export const getOptionAvailabilityStaffAvailabilityOptionsOptionIdPutUrl = (optionId: number,
+    params?: OptionAvailabilityStaffAvailabilityOptionsOptionIdPutParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/staff/availability/options/${optionId}?${stringifiedParams}` : `/staff/availability/options/${optionId}`
+}
+
+export const optionAvailabilityStaffAvailabilityOptionsOptionIdPut = async (optionId: number,
+    availabilityUpdateIn: AvailabilityUpdateIn,
+    params?: OptionAvailabilityStaffAvailabilityOptionsOptionIdPutParams, options?: RequestInit): Promise<optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse> => {
+  
+  const res = await fetch(getOptionAvailabilityStaffAvailabilityOptionsOptionIdPutUrl(optionId,params),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      availabilityUpdateIn,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse
 }
 
 

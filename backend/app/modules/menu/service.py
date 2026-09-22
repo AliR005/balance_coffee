@@ -15,7 +15,13 @@ from app.modules.menu.models import (
     Product,
     ProductOptionGroup,
 )
-from app.modules.menu.repository import get_location, list_locations, menu_snapshot
+from app.modules.menu.repository import (
+    get_location,
+    list_locations,
+    menu_snapshot,
+    set_option_availability,
+    set_product_availability,
+)
 from app.modules.menu.schemas import (
     CategoryOut,
     GroupOut,
@@ -208,3 +214,59 @@ async def quote(session: AsyncSession, location_id: int, payload: QuoteIn) -> Qu
 
 def now_utc() -> datetime:
     return datetime.now(UTC)
+
+
+class CatalogData:
+    """Всё, что нужно сервису заказов: цены, валидация и данные для снапшотов."""
+
+    def __init__(
+        self,
+        location: Location,
+        catalog: dict[int, CatalogProduct],
+        products: dict[int, Product],
+        groups: dict[int, OptionGroup],
+        options: dict[int, Option],
+    ) -> None:
+        self.location = location
+        self.catalog = catalog
+        self.products = products
+        self.groups = groups
+        self.options = options
+
+
+async def load_catalog(session: AsyncSession, location_id: int) -> CatalogData:
+    """Публичная точка для межмодульного доступа (модуль orders)."""
+    loc = await get_location(session, location_id)
+    if loc is None or not loc.is_active:
+        raise ValidationError("not_found", "Location not found", {"location_id": location_id})
+    snap = await menu_snapshot(session, location_id)
+    return CatalogData(
+        location=loc,
+        catalog=_catalog(snap, location_id),
+        products={p.id: p for p in snap["products"]},
+        groups={g.id: g for g in snap["groups"]},
+        options={o.id: o for o in snap["options"]},
+    )
+
+
+async def fetch_location(session: AsyncSession, location_id: int) -> Location:
+    """Лёгкая проверка точки для staff-auth."""
+    loc = await get_location(session, location_id)
+    if loc is None or not loc.is_active:
+        raise ValidationError("not_found", "Location not found", {"location_id": location_id})
+    return loc
+
+
+async def set_availability(
+    session: AsyncSession,
+    location_id: int,
+    product_id: int | None,
+    option_id: int | None,
+    is_available: bool,
+) -> None:
+    """Стоп-лист точки (для модуля staff)."""
+    await fetch_location(session, location_id)
+    if product_id is not None:
+        await set_product_availability(session, location_id, product_id, is_available)
+    elif option_id is not None:
+        await set_option_availability(session, location_id, option_id, is_available)

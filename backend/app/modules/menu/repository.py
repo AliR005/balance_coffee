@@ -3,6 +3,7 @@
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.menu.models import (
@@ -69,3 +70,29 @@ async def menu_snapshot(session: AsyncSession, location_id: int) -> dict[str, An
         "prod_av": {r.product_id: r.is_available for r in prod_av},
         "opt_av": {r.option_id: r.is_available for r in opt_av},
     }
+
+
+async def set_product_availability(
+    session: AsyncSession, location_id: int, product_id: int, is_available: bool
+) -> None:
+    stmt = pg_insert(LocationProductAvailability).values(
+        location_id=location_id, product_id=product_id, is_available=is_available
+    )
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["location_id", "product_id"], set_={"is_available": is_available}
+    )
+    await session.execute(stmt)
+    await session.commit()
+
+
+async def set_option_availability(
+    session: AsyncSession, location_id: int, option_id: int, is_available: bool
+) -> None:
+    stmt = pg_insert(LocationOptionAvailability).values(
+        location_id=location_id, option_id=option_id, is_available=is_available
+    )
+    stmt = stmt.on_conflict_do_update(
+        index_elements=["location_id", "option_id"], set_={"is_available": is_available}
+    )
+    await session.execute(stmt)
+    await session.commit()

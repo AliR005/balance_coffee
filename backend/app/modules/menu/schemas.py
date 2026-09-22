@@ -68,6 +68,8 @@ class QuoteItemIn(BaseModel):
 
 class QuoteIn(BaseModel):
     items: list[QuoteItemIn] = Field(min_length=1, max_length=50)
+    # Точка расширения фазы 06b: пока принимается, но не влияет на цену.
+    use_bonus_points: int = Field(default=0, ge=0)
 
 
 class QuoteLineOut(BaseModel):
@@ -81,3 +83,4 @@ class QuoteOut(BaseModel):
     lines: list[QuoteLineOut]
     total: int
     currency: str
+    bonus_applied: int = 0
