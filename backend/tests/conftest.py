@@ -2,16 +2,30 @@ import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import app.core.ratelimit as ratelimit
 from app.core.config import settings
 from app.core.db import get_session
 from app.main import create_app
 
+# Сьют создаёт сотни заказов с одного IP за секунды — продовый лимит 60/мин
+# здесь неуместен; сам лимитер покрыт отдельным тестом.
+ratelimit.LIMITS["/orders"] = (10_000, 60)
+
 
 @pytest.fixture(scope="session", autouse=True)
-async def _free_slots_from_previous_runs():  # type: ignore[no-untyped-def]
-    """Тесты пишут в dev-БД: перед сьютом отменяем висящие активные заказы прошлых
-    прогонов, чтобы освободить слоты. Только публичный API."""
+async def _reset_dev_state():  # type: ignore[no-untyped-def]
+    """Тесты пишут в dev-БД: перед сьютом возвращаем seed-состояние (меню, стоп-лист)
+    и отменяем висящие активные заказы прошлых прогонов, чтобы освободить слоты."""
     try:
+        import importlib.util
+        from pathlib import Path
+
+        spec = importlib.util.spec_from_file_location("seed_mod", Path("scripts") / "seed.py")
+        assert spec and spec.loader
+        seed_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(seed_mod)
+        await seed_mod.main()
+
         engine = create_async_engine(settings.database_url, pool_pre_ping=True)
         factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         app = create_app()

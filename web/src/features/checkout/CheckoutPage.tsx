@@ -147,7 +147,7 @@ export function CheckoutPage() {
 
   return (
     <main className="mx-auto min-h-dvh w-full max-w-[480px] bg-panel pb-10 text-panel-text">
-      <div className="flex items-center gap-3 px-5 pt-4 text-lg font-medium">
+      <h1 className="flex items-center gap-3 px-5 pt-4 text-lg font-medium">
         <button
           type="button"
           onClick={() => nav(-1)}
@@ -157,7 +157,7 @@ export function CheckoutPage() {
           ←
         </button>
         {t.checkoutTitle}
-      </div>
+      </h1>
 
       <div className="grid grid-cols-2 gap-2.5 px-5 pt-4">
         {(
@@ -190,14 +190,14 @@ export function CheckoutPage() {
       <section className="px-5 pt-3.5" aria-live="polite">
         {mode === "on_site" ? (
           <div>
-            <h4 className="text-base font-semibold">{t.cookNow}</h4>
+            <h2 className="text-base font-semibold">{t.cookNow}</h2>
             <p className="text-[13px] text-panel-text-2">
               {asapLabel ? t.cookNowHint(10) : t.loading}
             </p>
           </div>
         ) : (
           <div>
-            <h4 className="text-base font-semibold">{t.whenTake}</h4>
+            <h2 className="text-base font-semibold">{t.whenTake}</h2>
             <p className="text-[13px] text-panel-text-2">
               {t.today}. {asapLabel ? t.asapHint(asapLabel) : ""}
             </p>
@@ -241,7 +241,7 @@ export function CheckoutPage() {
       </section>
 
       <section className="px-5 pt-4">
-        <h4 className="text-base font-semibold">{t.whoPicks}</h4>
+        <h2 className="text-base font-semibold">{t.whoPicks}</h2>
         <label className="mt-2 block text-[13px] text-panel-text-2">
           {t.nameLabel}
           <input
@@ -281,7 +281,7 @@ export function CheckoutPage() {
       </section>
 
       <section className="px-5 pt-4">
-        <h4 className="text-base font-semibold">{t.yourOrder}</h4>
+        <h2 className="text-base font-semibold">{t.yourOrder}</h2>
         <div className="mt-2 flex flex-col gap-2.5">
           {resolved.map((r) => (
             <div

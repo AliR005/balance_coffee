@@ -14,7 +14,11 @@ export function Toast({ message, actionLabel, onAction }: Props) {
     >
       <span className="flex-1">{message}</span>
       {actionLabel ? (
-        <button type="button" onClick={onAction} className="font-semibold text-primary">
+        <button
+          type="button"
+          onClick={onAction}
+          className="min-h-[44px] min-w-[44px] shrink-0 px-2 font-semibold text-primary"
+        >
           {actionLabel}
         </button>
       ) : null}

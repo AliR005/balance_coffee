@@ -50,3 +50,47 @@ jobs:
           npm ci
           npm run lint
           npm run test -- --run
+          npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: balance
+          POSTGRES_PASSWORD: balance
+          POSTGRES_DB: balance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: cp .env.example .env
+      - working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://balance:balance@localhost:5432/balance
+        run: |
+          uv sync --group dev
+          uv run alembic upgrade head
+          uv run python scripts/seed.py
+          nohup uv run uvicorn app.main:app --port 8000 > /tmp/api.log 2>&1 &
+          sleep 5
+          curl -sf http://localhost:8000/health
+      - working-directory: web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          nohup npm run dev -- --port 5173 > /tmp/web.log 2>&1 &
+          sleep 10
+          npm run e2e

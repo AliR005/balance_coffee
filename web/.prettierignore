@@ -2,3 +2,5 @@ dist
 node_modules
 src/shared/api/generated
 openapi.json
+test-results
+playwright-report

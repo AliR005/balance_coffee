@@ -165,9 +165,9 @@ export function DrinkPage() {
 
       <div className="px-5 pt-3.5">
         <p className="text-xs text-accent-text">{product.slug}</p>
-        <h3 className="mt-1 text-[30px] leading-tight font-normal tracking-tight">
+        <h1 className="mt-1 text-[30px] leading-tight font-normal tracking-tight">
           {product.name}
-        </h3>
+        </h1>
         <p className="mt-1 max-w-[320px] text-sm text-text-2">{product.description ?? ""}</p>
 
         <div className="mt-3 flex items-center gap-3">

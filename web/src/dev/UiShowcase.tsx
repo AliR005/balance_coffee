@@ -29,7 +29,7 @@ const MILKS = [
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-panel border border-[var(--line)] bg-surface p-6">
-      <h3 className="mb-3.5 text-lg font-medium">{title}</h3>
+      <h2 className="mb-3.5 text-lg font-medium">{title}</h2>
       <div className="flex flex-wrap items-center gap-3">{children}</div>
     </section>
   );
@@ -48,7 +48,7 @@ export function UiShowcase() {
 
   return (
     <main className="mx-auto grid max-w-3xl gap-5 bg-bg p-5 pb-28 text-text">
-      <h2 className="text-2xl font-normal">Дизайн-система</h2>
+      <h1 className="text-2xl font-normal">Дизайн-система</h1>
 
       <Section title="Кнопки">
         <Button>Заказать</Button>

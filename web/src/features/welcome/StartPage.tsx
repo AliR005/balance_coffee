@@ -25,9 +25,9 @@ export function StartPage() {
         <span className="font-script block -rotate-3 text-4xl leading-none text-primary">
           {t.tagline}
         </span>
-        <h3 className="mt-2.5 text-[28px] leading-tight font-light tracking-tight">
+        <h1 className="mt-2.5 text-[28px] leading-tight font-light tracking-tight">
           {t.heroTitle}
-        </h3>
+        </h1>
       </div>
       <div className="mt-auto flex gap-2.5 p-5 pb-[calc(var(--space-5)+var(--safe-bottom))]">
         <div className="flex-1 [&>button]:w-full">

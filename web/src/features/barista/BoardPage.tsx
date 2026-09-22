@@ -217,7 +217,7 @@ export function BoardPage() {
   return (
     <main className="min-h-dvh bg-bg p-4 text-text lg:p-6">
       <header className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
-        <h2 className="mr-auto text-xl font-semibold">{t.board}</h2>
+        <h1 className="mr-auto text-xl font-semibold">{t.board}</h1>
         <span className={`text-xs ${online ? "text-success" : "text-danger"}`}>
           {online ? t.online : t.offlineBadge}
         </span>
@@ -258,9 +258,9 @@ export function BoardPage() {
         <div className="mx-auto mt-4 grid max-w-6xl gap-4 md:grid-cols-3">
           {cols.map((c) => (
             <section key={c.key} aria-label={c.title}>
-              <h3 className="mb-2 text-sm font-semibold text-text-2">
+              <h2 className="mb-2 text-sm font-semibold text-text-2">
                 {c.title} · {c.list.length}
-              </h3>
+              </h2>
               <div className="flex flex-col gap-3">
                 {c.list.map((o) => (
                   <OrderCardBarista

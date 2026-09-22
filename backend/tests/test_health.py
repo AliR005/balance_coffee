@@ -1,14 +1,8 @@
 import httpx
-import pytest
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import engine
 from app.main import create_app
-
-
-@pytest.fixture()
-def anyio_backend() -> str:
-    return "asyncio"
 
 
 async def test_health() -> None:
@@ -21,10 +15,6 @@ async def test_health() -> None:
     assert "X-Request-Id" in resp.headers
 
 
-async def test_db_connection() -> None:
-    try:
-        async with engine.connect() as conn:
-            result = await conn.execute(text("SELECT 1"))
-            assert result.scalar() == 1
-    except Exception as exc:  # DB may be unavailable in CI without service
-        pytest.skip(f"db unavailable: {exc}")
+async def test_db_connection(db_session: AsyncSession) -> None:
+    result = await db_session.execute(text("SELECT 1"))
+    assert result.scalar() == 1

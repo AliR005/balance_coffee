@@ -1,0 +1,27 @@
+{$DOMAIN} {
+	# Безопасность
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# API без буферизации (SSE должен идти сразу)
+	handle /api/* {
+		uri strip_prefix /api
+		reverse_proxy api:8000 {
+			flush_interval -1
+		}
+	}
+
+	# Статика PWA + SPA-фолбэк
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+		header /sw.js "Cache-Control: no-cache"
+		header /index.html "Cache-Control: no-cache"
+	}
+}

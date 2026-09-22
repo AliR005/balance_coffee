@@ -75,7 +75,7 @@ export function OrderCard({ order, variant = "heart", online, cancelling, onCanc
           </b>
           <span className="text-[13px] text-text-2">{time}</span>
         </div>
-        <h4 className="mt-1.5 text-lg font-medium text-accent-text">{statusTitle}</h4>
+        <h2 className="mt-1.5 text-lg font-medium text-accent-text">{statusTitle}</h2>
         <p className="text-[13px] text-text-2">{t.pickupAt(time)}</p>
 
         <div className="mt-4 flex items-center" aria-label="Стадии заказа">

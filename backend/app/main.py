@@ -12,6 +12,7 @@ from app.core.db import engine
 from app.core.errors import register_error_handlers
 from app.core.eventbus import InMemoryEventBus
 from app.core.logging import configure_logging, get_logger
+from app.core.ratelimit import rate_limit_middleware
 from app.health import router as health_router
 
 log = get_logger("app")
@@ -36,6 +37,10 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def _ratelimit(request: Request, call_next):  # type: ignore[no-untyped-def]
+        return await rate_limit_middleware(request, call_next)
 
     @app.middleware("http")
     async def _request_id(request: Request, call_next):  # type: ignore[no-untyped-def]

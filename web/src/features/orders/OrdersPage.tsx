@@ -165,7 +165,7 @@ export function OrdersPage() {
         </div>
       ) : null}
 
-      <div className="flex items-center gap-3 px-5 pt-4 text-lg font-medium">
+      <div className="flex items-center gap-3 px-5 pt-4">
         <button
           type="button"
           onClick={() => nav("/menu")}
@@ -174,7 +174,7 @@ export function OrdersPage() {
         >
           ←
         </button>
-        {t.ordersTitle}
+        <h1 className="text-lg font-medium">{t.ordersTitle}</h1>
       </div>
 
       <div className="flex gap-2 px-5 pt-3">

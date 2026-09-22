@@ -46,7 +46,7 @@ export function LiveCard({
         <span className="tabular">{formatDuration(durationSec)}</span>
       </span>
       <div className="absolute right-3 bottom-3 left-3">
-        <h4 className="text-base font-semibold">{name}</h4>
+        <h2 className="text-base font-semibold">{name}</h2>
         <p className="mt-0.5 mb-2 line-clamp-2 text-[11px] leading-[1.3] text-text-2">
           {description}
         </p>

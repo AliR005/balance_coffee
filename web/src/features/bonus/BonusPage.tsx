@@ -59,7 +59,7 @@ export function BonusPage() {
 
   return (
     <main className="mx-auto min-h-dvh w-full max-w-[480px] bg-bg pb-28 text-text">
-      <h2 className="pt-4 text-center text-lg font-medium">{t.tabs.bonus}</h2>
+      <h1 className="pt-4 text-center text-lg font-medium">{t.tabs.bonus}</h1>
 
       <div className="mt-3.5">
         <BonusRing balance={acc.balance} progress={progress} />
@@ -96,7 +96,7 @@ export function BonusPage() {
       </section>
 
       <section className="mx-5 mt-5">
-        <h4 className="mb-2.5 text-[15px] font-medium">{t.howEarn}</h4>
+        <h2 className="mb-2.5 text-[15px] font-medium">{t.howEarn}</h2>
         {[
           ["☕", t.earnCoffee, t.earnCoffeeHint],
           ["★", t.earnGift, t.earnGiftHint],
@@ -115,7 +115,7 @@ export function BonusPage() {
       </section>
 
       <section className="mx-5 mt-5">
-        <h4 className="mb-1.5 text-[15px] font-medium">{t.history}</h4>
+        <h2 className="mb-1.5 text-[15px] font-medium">{t.history}</h2>
         {txns.map((txn) => (
           <div
             key={txn.id}

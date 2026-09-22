@@ -43,14 +43,14 @@ export function StoplistPage() {
         >
           ←
         </button>
-        <h2 className="text-xl font-semibold">{t.stopList}</h2>
+        <h1 className="text-xl font-semibold">{t.stopList}</h1>
       </div>
 
       {availQuery.isLoading ? (
         <Skeleton className="mt-4 h-40" />
       ) : (
         <>
-          <h3 className="mt-5 mb-1 text-sm font-semibold text-text-2">{t.stopDrinks}</h3>
+          <h2 className="mt-5 mb-1 text-sm font-semibold text-text-2">{t.stopDrinks}</h2>
           <div className="flex flex-col gap-1">
             {(availQuery.data?.products ?? []).map((p) => (
               <div
@@ -71,7 +71,7 @@ export function StoplistPage() {
               </div>
             ))}
           </div>
-          <h3 className="mt-5 mb-1 text-sm font-semibold text-text-2">{t.stopOptions}</h3>
+          <h2 className="mt-5 mb-1 text-sm font-semibold text-text-2">{t.stopOptions}</h2>
           <div className="flex flex-col gap-1">
             {(availQuery.data?.options ?? []).map((o) => (
               <div

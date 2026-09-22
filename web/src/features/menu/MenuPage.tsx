@@ -149,7 +149,7 @@ export function MenuPage() {
             type="button"
             onClick={() => setLocSheet(true)}
             className="inline-flex h-9 items-center gap-1.5 rounded-control border border-[var(--line)] bg-surface-2 px-3 text-[13px] font-medium"
-            aria-label={t.chooseLocation}
+            aria-label={currentLoc ? `${t.chooseLocation}: ${currentLoc.name}` : t.chooseLocation}
           >
             <span aria-hidden className="text-accent-text">
               ◆

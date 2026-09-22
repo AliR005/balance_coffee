@@ -32,7 +32,7 @@ export function StaffLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col justify-center gap-4 bg-bg p-6 text-text">
-      <h2 className="text-[30px] font-normal">{t.staffLogin}</h2>
+      <h1 className="text-[30px] font-normal">{t.staffLogin}</h1>
       {locQuery.isLoading ? (
         <Skeleton className="h-14" />
       ) : (
