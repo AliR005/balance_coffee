@@ -22,4 +22,4 @@ migrate:
 	docker compose exec api /app/.venv/bin/alembic upgrade head
 
 reset-demo:
-	@echo "будет в фазе 09"
+	cd backend && uv run python scripts/reset_demo.py

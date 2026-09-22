@@ -28,10 +28,56 @@ def pin_hash(pin: str) -> str:
     return "sha256:" + hashlib.sha256(pin.encode()).hexdigest()
 
 
+class SeedError(Exception):
+    """Читаемая ошибка seed (что чинить в menu.yaml)."""
+
+
+def validate(data: dict) -> None:
+    """Проверяет структуру menu.yaml до записи в БД."""
+    if not isinstance(data, dict):
+        raise SeedError("корень menu.yaml должен быть словарём")
+    groups = {g["key"] for g in data.get("option_groups", []) if "key" in g}
+    cats = {c["slug"] for c in data.get("categories", []) if "slug" in c}
+    prods = {p["slug"] for p in data.get("products", []) if "slug" in p}
+    locs = {loc["code"] for loc in data.get("locations", []) if "code" in loc}
+    if not locs:
+        raise SeedError("locations: нужна хотя бы одна точка с code")
+    if not cats:
+        raise SeedError("categories: нужна хотя бы одна категория со slug")
+    for g in data.get("option_groups", []):
+        for o in g.get("options", []):
+            if not isinstance(o.get("price_delta", 0), int):
+                raise SeedError(
+                    f"option_groups.{g.get('key')}.{o.get('name')}: price_delta — int в копейках"
+                )
+    for p in data.get("products", []):
+        where = f"products.{p.get('slug')}"
+        if p.get("category") not in cats:
+            raise SeedError(f"{where}: неизвестная категория {p.get('category')!r}")
+        if not isinstance(p.get("base_price"), int) or p["base_price"] < 0:
+            raise SeedError(f"{where}: base_price — int ≥ 0 в копейках")
+        for g in p.get("groups", []):
+            if g.get("key") not in groups:
+                raise SeedError(f"{where}: неизвестная группа опций {g.get('key')!r}")
+    for rule in data.get("availability", []):
+        if rule.get("location") not in locs:
+            raise SeedError(f"availability: неизвестная точка {rule.get('location')!r}")
+        for slug in rule.get("unavailable_products", []):
+            if slug not in prods:
+                raise SeedError(
+                    f"availability.{rule.get('location')}: неизвестный продукт {slug!r}"
+                )
+
+
 async def main() -> None:
     from sqlalchemy.ext.asyncio import AsyncSession
 
     data = yaml.safe_load((BACKEND_ROOT / "seed" / "menu.yaml").read_text(encoding="utf-8"))
+    try:
+        validate(data)
+    except SeedError as exc:
+        print(f"seed: ОШИБКА в menu.yaml: {exc}")
+        raise SystemExit(1) from exc
 
     async with AsyncSession(engine) as session:
         # --- option groups + options ---

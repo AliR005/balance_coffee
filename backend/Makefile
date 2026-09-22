@@ -1,4 +1,4 @@
-.PHONY: test lint seed
+.PHONY: test lint seed reset-demo
 
 test:
 	uv run pytest
@@ -10,3 +10,6 @@ lint:
 
 seed:
 	uv run python scripts/seed.py
+
+reset-demo:
+	uv run python scripts/reset_demo.py
