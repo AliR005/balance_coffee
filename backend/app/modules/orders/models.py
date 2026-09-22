@@ -47,6 +47,7 @@ class Order(TimestampMixin, Base):
     pickup_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     is_asap: Mapped[bool] = mapped_column(default=False)
     units: Mapped[int] = mapped_column(Integer, default=1)  # снапшот нагрузки на слот
+    bonus_redeemed: Mapped[int] = mapped_column(Integer, default=0)  # баллы, списанные на заказ
     total: Mapped[int] = mapped_column(BigInteger)
     currency: Mapped[str] = mapped_column(String(8), default="RUB")
     payment_method: Mapped[str] = mapped_column(String(32), default="cash_on_pickup")

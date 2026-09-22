@@ -1,5 +1,8 @@
 """Staff: вход, изоляция точек, стоп-лист и его влияние."""
 
+import pytest
+
+from app.modules.staff import service as staff_service
 from tests.helpers05 import (
     create_order,
     latte_item,
@@ -9,6 +12,14 @@ from tests.helpers05 import (
     staff_headers,
     staff_login,
 )
+
+
+@pytest.fixture(autouse=True)
+def _fresh_rate_limit():  # type: ignore[no-untyped-def]
+    # Лимит in-memory на процесс — изолируем тесты друг от друга.
+    staff_service._LOGIN_ATTEMPTS.clear()
+    yield
+    staff_service._LOGIN_ATTEMPTS.clear()
 
 
 async def test_login_ok_and_wrong_pin(api_client) -> None:  # type: ignore[no-untyped-def]
@@ -23,21 +34,13 @@ async def test_login_ok_and_wrong_pin(api_client) -> None:  # type: ignore[no-un
 
 
 async def test_login_rate_limit(api_client) -> None:  # type: ignore[no-untyped-def]
-    from app.modules.staff import service as staff_service
-
     locs = await locations(api_client)
     tv = locs["TV"]
-    try:
-        for _ in range(10):
-            await api_client.post("/staff/login", json={"location_id": tv["id"], "pin": "0000"})
-        # 11-я попытка (даже с верным PIN) тоже 401 — лимит не выдаёт себя.
-        limited = await api_client.post(
-            "/staff/login", json={"location_id": tv["id"], "pin": "1234"}
-        )
-        assert limited.status_code == 401
-    finally:
-        # Лимит in-memory на процесс — чистим, чтобы не травить соседние тесты.
-        staff_service._LOGIN_ATTEMPTS.clear()
+    for _ in range(10):
+        await api_client.post("/staff/login", json={"location_id": tv["id"], "pin": "0000"})
+    # 11-я попытка (даже с верным PIN) тоже 401 — лимит не выдаёт себя.
+    limited = await api_client.post("/staff/login", json={"location_id": tv["id"], "pin": "1234"})
+    assert limited.status_code == 401
 
 
 async def test_staff_endpoints_need_token(api_client) -> None:  # type: ignore[no-untyped-def]

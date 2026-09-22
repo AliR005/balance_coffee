@@ -55,6 +55,7 @@ def create_app() -> FastAPI:
 
     register_error_handlers(app)
     app.include_router(health_router)
+    from app.modules.bonus.router import router as bonus_router
     from app.modules.menu.router import router as menu_router
     from app.modules.orders.router import router as orders_router
     from app.modules.staff.router import router as staff_router
@@ -62,6 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(menu_router)
     app.include_router(orders_router)
     app.include_router(staff_router)
+    app.include_router(bonus_router)
 
     @app.get("/db-check")
     async def _db_check() -> dict[str, str]:

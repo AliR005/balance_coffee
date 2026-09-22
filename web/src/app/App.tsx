@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { UiShowcase } from "../dev/UiShowcase";
 import { hasSeenWelcome } from "../features/cart/store";
+import { BonusPage } from "../features/bonus/BonusPage";
 import { CheckoutPage } from "../features/checkout/CheckoutPage";
 import { DrinkPage } from "../features/menu/DrinkPage";
 import { MenuPage } from "../features/menu/MenuPage";
@@ -28,7 +29,7 @@ export function App() {
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/orders" element={<OrdersPage />} />
       <Route path="/order/:id" element={<OrdersPage />} />
-      <Route path="/bonus" element={<Stub text={t.bonusSoon} />} />
+      <Route path="/bonus" element={<BonusPage />} />
       <Route path="/profile" element={<Stub text={t.profileSoon} />} />
       <Route path="/health" element={<HealthPage />} />
       {import.meta.env.DEV ? <Route path="/dev/ui" element={<UiShowcase />} /> : null}

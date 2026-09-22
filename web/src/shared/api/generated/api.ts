@@ -4,6 +4,13 @@
  * Balance API
  * OpenAPI spec version: 0.1.0
  */
+export interface AccountOut {
+  phone: string;
+  balance: number;
+  lifetime_spent: number;
+  level: LevelOut;
+}
+
 export interface AvailabilityOut {
   location_id: number;
   products: ProductAvailabilityOut[];
@@ -34,6 +41,14 @@ export interface GroupOut {
 
 export interface HTTPValidationError {
   detail?: ValidationError[];
+}
+
+export type LevelOutNextName = string | null;
+
+export interface LevelOut {
+  name: string;
+  next_name?: LevelOutNextName;
+  to_next_kopeks?: number;
 }
 
 export interface LocationOut {
@@ -236,6 +251,16 @@ export interface StatusChangeIn {
   to_status: string;
 }
 
+export type TransactionOutOrderId = number | null;
+
+export interface TransactionOut {
+  id: number;
+  type: string;
+  amount: number;
+  order_id?: TransactionOutOrderId;
+  created_at: string;
+}
+
 export type ValidationErrorLocItem = string | number;
 
 export type ValidationErrorCtx = { [key: string]: unknown };
@@ -296,6 +321,24 @@ token?: string | null;
 };
 
 export type OptionAvailabilityStaffAvailabilityOptionsOptionIdPut200 = {[key: string]: boolean};
+
+export type AccountBonusAccountGetParams = {
+/**
+ * @minLength 5
+ * @maxLength 32
+ */
+phone: string;
+token?: string | null;
+};
+
+export type TransactionsBonusTransactionsGetParams = {
+/**
+ * @minLength 5
+ * @maxLength 32
+ */
+phone: string;
+token?: string | null;
+};
 
 export type DbCheckDbCheckGet200 = {[key: string]: string};
 
@@ -1159,6 +1202,118 @@ export const optionAvailabilityStaffAvailabilityOptionsOptionIdPut = async (opti
   
   const data: optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as optionAvailabilityStaffAvailabilityOptionsOptionIdPutResponse
+}
+
+
+
+/**
+ * @summary  Account
+ */
+export type accountBonusAccountGetResponse200 = {
+  data: AccountOut
+  status: 200
+}
+
+export type accountBonusAccountGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type accountBonusAccountGetResponseSuccess = (accountBonusAccountGetResponse200) & {
+  headers: Headers;
+};
+export type accountBonusAccountGetResponseError = (accountBonusAccountGetResponse422) & {
+  headers: Headers;
+};
+
+export type accountBonusAccountGetResponse = (accountBonusAccountGetResponseSuccess | accountBonusAccountGetResponseError)
+
+export const getAccountBonusAccountGetUrl = (params: AccountBonusAccountGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/bonus/account?${stringifiedParams}` : `/bonus/account`
+}
+
+export const accountBonusAccountGet = async (params: AccountBonusAccountGetParams, options?: RequestInit): Promise<accountBonusAccountGetResponse> => {
+  
+  const res = await fetch(getAccountBonusAccountGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: accountBonusAccountGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as accountBonusAccountGetResponse
+}
+
+
+
+/**
+ * @summary  Transactions
+ */
+export type transactionsBonusTransactionsGetResponse200 = {
+  data: TransactionOut[]
+  status: 200
+}
+
+export type transactionsBonusTransactionsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type transactionsBonusTransactionsGetResponseSuccess = (transactionsBonusTransactionsGetResponse200) & {
+  headers: Headers;
+};
+export type transactionsBonusTransactionsGetResponseError = (transactionsBonusTransactionsGetResponse422) & {
+  headers: Headers;
+};
+
+export type transactionsBonusTransactionsGetResponse = (transactionsBonusTransactionsGetResponseSuccess | transactionsBonusTransactionsGetResponseError)
+
+export const getTransactionsBonusTransactionsGetUrl = (params: TransactionsBonusTransactionsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/bonus/transactions?${stringifiedParams}` : `/bonus/transactions`
+}
+
+export const transactionsBonusTransactionsGet = async (params: TransactionsBonusTransactionsGetParams, options?: RequestInit): Promise<transactionsBonusTransactionsGetResponse> => {
+  
+  const res = await fetch(getTransactionsBonusTransactionsGetUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  
+  const data: transactionsBonusTransactionsGetResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as transactionsBonusTransactionsGetResponse
 }
 
 

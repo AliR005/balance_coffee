@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { newIdempotencyKey } from "./features/checkout/api";
 import { isPhoneValid } from "./features/checkout/customer";
+import { clampRedeem, levelProgress } from "./features/bonus/math";
 import { shouldSplash } from "./features/orders/registry";
 import { rebuildOrder } from "./features/orders/repeat";
 import type { MenuOut, OrderItemOut } from "./shared/api/generated/api";
@@ -111,5 +112,22 @@ describe("splash once", () => {
     sessionStorage.clear();
     expect(shouldSplash(id)).toBe(true);
     expect(shouldSplash(id)).toBe(false);
+  });
+});
+
+describe("clampRedeem", () => {
+  it("не больше баланса, запроса и 50% суммы", () => {
+    expect(clampRedeem(1000, 1000, 32000)).toBe(160);
+    expect(clampRedeem(100, 1000, 32000)).toBe(100);
+    expect(clampRedeem(1000, 50, 32000)).toBe(50);
+    expect(clampRedeem(0, 100, 32000)).toBe(0);
+  });
+});
+
+describe("levelProgress", () => {
+  it("доля до следующего уровня", () => {
+    expect(levelProgress(0, 500000, true)).toBe(0);
+    expect(levelProgress(250000, 250000, true)).toBe(0.5);
+    expect(levelProgress(1, 0, false)).toBe(1);
   });
 });

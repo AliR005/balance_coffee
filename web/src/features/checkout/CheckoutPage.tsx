@@ -7,7 +7,10 @@ import { Button } from "../../shared/ui/Button";
 import { PriceText } from "../../shared/ui/PriceText";
 import { Skeleton } from "../../shared/ui/Skeleton";
 import { Stepper } from "../../shared/ui/Stepper";
+import { Switch } from "../../shared/ui/Switch";
 import { Toast } from "../../shared/ui/Toast";
+import { useBonusAccount } from "../bonus/api";
+import { clampRedeem } from "../bonus/math";
 import { useCart } from "../cart/store";
 import { useLocations, useMenu } from "../menu/api";
 import { computePrice, selectionDeltas } from "../menu/pricing";
@@ -46,6 +49,7 @@ export function CheckoutPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [idempotencyKey] = useState(newIdempotencyKey);
+  const [redeemOn, setRedeemOn] = useState(false);
   const customer = useCustomerForm();
 
   const resolved = useMemo(() => {
@@ -71,6 +75,12 @@ export function CheckoutPage() {
   const asapLabel = slots?.asap ? slotLabel(slots.asap.start, timeZone) : null;
 
   const subtotal = resolved.reduce((a, r) => a + r.line, 0);
+  const bonusQuery = useBonusAccount(customer.phone);
+  const balance = bonusQuery.data?.balance ?? 0;
+  const redeemPoints = redeemOn ? clampRedeem(balance, balance, subtotal) : 0;
+  const discount = redeemPoints * 100;
+  const grand = subtotal - discount;
+  const earn = Math.floor((grand / 100) * 0.05);
 
   if (locationId === null || items.length === 0) {
     return (
@@ -104,6 +114,7 @@ export function CheckoutPage() {
           customer_name: customer.name.trim(),
           customer_phone: customer.phone.trim(),
           comment: customer.comment.trim(),
+          use_bonus_points: redeemPoints,
         },
         idempotencyKey,
       );
@@ -297,14 +308,36 @@ export function CheckoutPage() {
         </div>
       </section>
 
+      {balance > 0 ? (
+        <div className="mx-5 mt-2.5 flex items-center gap-3 rounded-tile bg-[var(--panel-2)] p-2.5 pl-3.5 text-[13px]">
+          <span aria-hidden className="text-accent-text">
+            ★
+          </span>
+          <span className="flex-1 leading-snug">
+            <b className="font-semibold">{t.redeemRow(clampRedeem(balance, balance, subtotal))}</b>
+            <br />
+            {t.redeemBalance(balance)}
+          </span>
+          <Switch label={t.redeemRow(balance)} checked={redeemOn} onChange={setRedeemOn} />
+        </div>
+      ) : null}
+
       <section className="mx-3 mt-3.5 rounded-panel bg-[var(--panel-solid)] p-4 text-[var(--on-panel-solid)]">
         <div className="flex justify-between text-sm opacity-70">
           <span>{t.total}</span>
           <span className="tabular">{formatRub(subtotal)}</span>
         </div>
+        {discount > 0 ? (
+          <div className="flex justify-between text-sm opacity-70">
+            <span>{t.bonusDiscount}</span>
+            <span className="tabular">−{formatRub(discount)}</span>
+          </div>
+        ) : null}
         <div className="mt-1 mb-3 flex items-baseline justify-between text-base">
-          <span>{t.grandTotal}</span>
-          <b className="tabular text-[22px] font-semibold">{formatRub(subtotal)}</b>
+          <span>
+            {t.grandTotal} <small className="text-xs opacity-70">{t.bonusEarnPreview(earn)}</small>
+          </span>
+          <b className="tabular text-[22px] font-semibold">{formatRub(grand)}</b>
         </div>
         <div className="[&>button]:w-full">
           <Button loading={sending} onClick={() => void submit()}>

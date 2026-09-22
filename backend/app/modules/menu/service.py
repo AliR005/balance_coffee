@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.time import is_open_now
+from app.modules.bonus.service import redeem_for as preview_redeem_for
 from app.modules.menu import pricing, validation
 from app.modules.menu.models import (
     Location,
@@ -205,10 +206,14 @@ async def quote(session: AsyncSession, location_id: int, payload: QuoteIn) -> Qu
 
     validation.validate_order_total_units(total_units)
 
+    subtotal = pricing.order_total(line_totals)
+    # Пресчёт списания без проверки баланса (баланс проверяется при создании заказа).
+    bonus_points = preview_redeem_for(10**9, payload.use_bonus_points, subtotal)
     return QuoteOut(
         lines=lines,
-        total=pricing.order_total(line_totals),
+        total=subtotal - bonus_points * 100,
         currency=settings.default_currency,
+        bonus_applied=bonus_points * 100,
     )
 
 

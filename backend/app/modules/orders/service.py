@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.eventbus import EventBus
 from app.core.security import body_hash, new_access_token
 from app.core.time import WEEKDAYS
+from app.modules.bonus import service as bonus_service
 from app.modules.menu import pricing, validation
 from app.modules.menu.models import Location
 from app.modules.menu.service import CatalogData, load_catalog
@@ -22,6 +23,7 @@ from app.modules.orders.models import (
     CANCELLED,
     CONFIRMED,
     ON_SITE,
+    PICKED_UP,
     PREPARING,
     READY,
     Order,
@@ -156,7 +158,7 @@ def order_out(order: Order, items: list[OrderItem]) -> OrderOut:
         total=order.total,
         currency=order.currency,
         payment_method=order.payment_method,
-        bonus_applied=0,
+        bonus_applied=order.bonus_redeemed * 100,
         items=[
             OrderItemOut(
                 product_id=i.product_id,
@@ -237,7 +239,7 @@ async def create(
 
     data = await load_catalog(session, payload.location_id)
     loc = data.location
-    lines, total, units = _price_lines(data, payload)
+    lines, lines_total, units = _price_lines(data, payload)
     if units > loc.slot_capacity:
         raise ValidationError("order_too_large", "Order exceeds slot capacity", {"units": units})
     slots = await get_slots(session, payload.location_id, units, now_utc)
@@ -251,6 +253,13 @@ async def create(
         if row.units_reserved + units > loc.slot_capacity:
             raise ValidationError("slot_unavailable", "Slot just filled up", {})
         row.units_reserved += units
+
+        # Списание баллов — в той же транзакции, со строгой блокировкой счёта.
+        access_token = new_access_token()
+        bonus_account, bonus_points, bonus_discount = await bonus_service.reserve_redeem(
+            session, payload.customer_phone, payload.use_bonus_points, lines_total, access_token
+        )
+        total = lines_total - bonus_discount
 
         tz: tzinfo
         try:
@@ -271,17 +280,22 @@ async def create(
             pickup_at=slot_start,
             is_asap=is_asap,
             units=units,
+            bonus_redeemed=bonus_points,
             total=total,
             currency=settings.default_currency,
             payment_method="cash_on_pickup",
             idempotency_key=idempotency_key,
             idempotency_hash=key_hash,
-            access_token=new_access_token(),
+            access_token=access_token,
         )
         session.add(order)
         await session.flush()
         for line in lines:
             session.add(OrderItem(order_id=order.id, **line))
+        # Счёт гостя с токеном заказа (идемпотентно, гонки гасит ON CONFLICT).
+        await bonus_service.ensure_account(session, payload.customer_phone, access_token)
+        if bonus_account is not None and bonus_points > 0:
+            await bonus_service.record_redeem(session, bonus_account.id, bonus_points, order.id)
         await repository.add_status_event(session, order.id, None, CONFIRMED, "customer")
         await session.commit()
     except IntegrityError as exc:
@@ -348,6 +362,13 @@ async def change_status(
             row = await repository.get_slot_for_update(session, order.location_id, order.pickup_at)
             if row is not None:
                 row.units_reserved = max(row.units_reserved - order.units, 0)
+            # Возвращаем списанные баллы. Начислений при отмене нет.
+            await bonus_service.refund(session, order.id)
+        if to_status == PICKED_UP:
+            # Начисление 5% от оплаченной суммы (идемпотентно по заказу).
+            await bonus_service.accrue(
+                session, order.customer_phone, order.total, order.id, order.access_token
+            )
         await session.commit()
     except ValidationError:
         await session.rollback()

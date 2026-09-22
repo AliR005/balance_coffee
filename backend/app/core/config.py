@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     staff_token_secret: str = "dev-only-change-me"
     staff_token_ttl_hours: int = 12
     log_level: str = "INFO"
+    # Бонусы (SPEC 10.3). Балл = 1 рубль (100 копеек). Пороги уровней — копейки lifetime.
+    bonus_accrual_pct: int = 5
+    bonus_max_redeem_pct: int = 50
+    bonus_levels: str = "Эспрессо:0,Латте:500000,Баланс:1500000"
 
 
 settings = Settings()

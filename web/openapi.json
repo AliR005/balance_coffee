@@ -960,6 +960,130 @@
         }
       }
     },
+    "/bonus/account": {
+      "get": {
+        "tags": [
+          "bonus"
+        ],
+        "summary": " Account",
+        "operationId": "_account_bonus_account_get",
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 32,
+              "title": "Phone"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bonus/transactions": {
+      "get": {
+        "tags": [
+          "bonus"
+        ],
+        "summary": " Transactions",
+        "operationId": "_transactions_bonus_transactions_get",
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 32,
+              "title": "Phone"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionOut"
+                  },
+                  "title": "Response  Transactions Bonus Transactions Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/db-check": {
       "get": {
         "summary": " Db Check",
@@ -985,6 +1109,33 @@
   },
   "components": {
     "schemas": {
+      "AccountOut": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "balance": {
+            "type": "integer",
+            "title": "Balance"
+          },
+          "lifetime_spent": {
+            "type": "integer",
+            "title": "Lifetime Spent"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone",
+          "balance",
+          "lifetime_spent",
+          "level"
+        ],
+        "title": "AccountOut"
+      },
       "AvailabilityOut": {
         "properties": {
           "location_id": {
@@ -1124,6 +1275,35 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "LevelOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "next_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Name"
+          },
+          "to_next_kopeks": {
+            "type": "integer",
+            "title": "To Next Kopeks",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "LevelOut"
       },
       "LocationOut": {
         "properties": {
@@ -1849,6 +2029,46 @@
           "to_status"
         ],
         "title": "StatusChangeIn"
+      },
+      "TransactionOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "amount": {
+            "type": "integer",
+            "title": "Amount"
+          },
+          "order_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "amount",
+          "created_at"
+        ],
+        "title": "TransactionOut"
       },
       "ValidationError": {
         "properties": {
